@@ -1,0 +1,15 @@
+body section div {
+    background: white;
+}
+nav div a span{
+    color: white;
+}
+footer{
+    background: #161D6F;
+}
+footer div span{
+    color: white;
+}
+body section div div div form button{
+    background: #161D6F;
+}
