@@ -27,12 +27,24 @@
             @endphp
 
             <li>
+                <a href="/dashboard" @class([
+                    "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
+                    "opacity-70 hover:opacity-100" => $currentRoute !== "dashboard",
+                    "opacity-100" => $currentRoute == "dashboard"
+                ])>
+                <img src="{{ asset('img/lucide--home.svg') }}" alt="Dashboard" class="w-9 h-6 mr-2">
+                    Dashboard
+                    <span
+                        class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'dashboard' ? 'scale-x-100' : '' }}"></span>
+                </a>
+            </li>
+            <li>
                 <a href="/transaksi" @class([
                     "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
                     "opacity-70 hover:opacity-100" => $currentRoute !== "transaksi",
                     "opacity-100" => $currentRoute == "transaksi"
                 ])>
-    <img src="{{ asset('img/transaksi.svg') }}" alt="Transaksi" class="w-9 h-6 mr-2">
+                <img src="{{ asset('img/transaksi.svg') }}" alt="Transaksi" class="w-9 h-6 mr-2">
                     Transaksi
                     <span
                         class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'transaksi' ? 'scale-x-100' : '' }}"></span>
@@ -40,7 +52,7 @@
             </li>
 
             @if (Auth::user()->role == 'owner')
-                        <li>
+                        <!-- <li>
                             <a href="/mingguan" @class([
                                 "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
                                 "opacity-70 hover:opacity-100" => $currentRoute !== "mingguan",
@@ -51,7 +63,7 @@
                                 <span
                                     class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'mingguan' ? 'scale-x-100' : '' }}"></span>
                             </a>
-                        </li>
+                        </li> -->
                         <li>
                             <a href="/barang" @class([
                                 "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
