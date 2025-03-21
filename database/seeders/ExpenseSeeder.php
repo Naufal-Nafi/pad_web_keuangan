@@ -6,7 +6,6 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Expense;
 
-
 class ExpenseSeeder extends Seeder
 {
     /**
@@ -17,7 +16,7 @@ class ExpenseSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             Expense::create([
                 'description' => fake()->sentence(3),
-                'amount' => fake()->numberBetween(50000,200000),
+                'amount' => fake()->numberBetween(50000, 200000),
                 'date' => fake()->date()
             ]);
         }
