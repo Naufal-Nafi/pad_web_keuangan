@@ -16,7 +16,7 @@ class Expense extends Model
         'amount',
         'date',
     ];
-        protected $dates = [
+    protected $dates = [
         'date',
     ];
 

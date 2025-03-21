@@ -16,11 +16,12 @@ return new class extends Migration
             $table->foreign('user_id')->references('user_id')->on('users');
             $table->unsignedBigInteger('store_id');
             $table->foreign('store_id')->references('store_id')->on('stores');
+
             $table->date('entry_date')->nullable();
             $table->date('exit_date');
-            $table->integer('quantity');
+            $table->integer('stock');
             $table->integer('sold')->nullable();
-            $table->decimal('income', 12, 0)->nullable();
+            $table->decimal('price', 12, 0);
             $table->timestamps();
         });
     }

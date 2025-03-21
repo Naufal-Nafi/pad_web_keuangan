@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Consignment;
-use App\Models\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -21,11 +20,10 @@ class ConsignmentSeeder extends Seeder
                 'user_id' => fake()->numberBetween(1, 10),
                 'entry_date' => fake()->date(),
                 'exit_date' => fake()->date(),
-                'quantity' => fake()->numberBetween(30, 100),
+                'stock' => fake()->numberBetween(30, 100),
                 'sold' => fake()->numberBetween(10, 30),
-                'income' => fake()->numberBetween(100000, 200000),
+                'price' => fake()->numberBetween(1000, 200000),
             ]);
-
         }
     }
 }

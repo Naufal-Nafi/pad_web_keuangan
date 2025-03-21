@@ -14,11 +14,12 @@ class Consignment extends Model
     protected $fillable = [
         'product_id',
         'store_id',
-        'quantity',
-        'exit_date', 
+        'user_id',
         'entry_date',
+        'exit_date',
+        'stock',
         'sold',
-        'income',
+        'price',
     ];
 
     protected $dates = [
@@ -67,4 +68,3 @@ class Consignment extends Model
     //     });
     // }
 }
-

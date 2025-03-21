@@ -6,7 +6,6 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
-
 class UserSeeder extends Seeder
 {
     /**
@@ -16,7 +15,7 @@ class UserSeeder extends Seeder
     {
         for ($i = 0; $i < 10; $i++) {
             User::create([
-                'role' => 'pegawai',
+                'role' => 'employee',
                 'email' => fake()->email(),
                 'name' => fake()->name(),
                 'password' => fake()->password(),
