@@ -107,7 +107,7 @@
         </button>
 
         <!-- Modal Konfirmasi Logout -->
-        <div x-show="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div x-show="showModal" x-cloak class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white rounded-lg shadow-lg p-6 w-96">
                 <h2 class="text-lg font-semibold text-gray-800">Konfirmasi Logout</h2>
                 <p class="mt-2 text-sm text-gray-600">Apakah Anda yakin ingin logout?</p>
@@ -124,6 +124,10 @@
         </div>
     </div>
 </nav>
+
+<style>
+    [x-cloak] { display: none !important; }
+</style>
 
 <body class="bg-[#F4F1E6]">
     @yield('content')

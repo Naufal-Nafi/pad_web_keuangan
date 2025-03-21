@@ -4,7 +4,7 @@
 @section('content')
     <section class="p-10">
         <!-- line chart -->
-        <div class="mx-auto drop-shadow-lg"><canvas id="dailyReportChart"></canvas></div>
+        <!-- <div class="mx-auto drop-shadow-lg"><canvas id="dailyReportChart"></canvas></div> -->
 
         <!-- tabel barang -->
         <div class="relative overflow-x-auto drop-shadow-lg sm:rounded-lg mx-auto mt-4">
@@ -183,7 +183,7 @@
         </div>
     </section>
 
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', () => {
             const ctx = document.getElementById('dailyReportChart').getContext('2d');
             fetch('/dashboard/daily-report')
@@ -225,7 +225,7 @@
                 })
                 .catch(error => console.error('Error loading data:', error));
         });
-    </script>
+    </script> -->
 
     <script>
         function confirmDelete() {

@@ -184,15 +184,16 @@ class ConsignmentController extends Controller
     {
         $consignments = Consignment::with('product', 'store')
             ->get()
-            ->filter(function ($consignment) {
-                $status = ($consignment->quantity - $consignment->sold == 0) ? 'Close' : 'Open';
-                return $status === 'Open';
-            })
+            // ->filter(function ($consignment) {
+            //     $status = ($consignment->quantity - $consignment->sold == 0) ? 'Close' : 'Open';
+            //     return $status === 'Open';
+            // })
             ->map(function ($consignment) {
                 return [
                     'store_name' => $consignment->store->store_name,
-                    'product_name' => $consignment->product->product_name,
-                    'quantity' => $consignment->quantity,
+                    'product_name' => $consignment->product->product_name,                    
+                    'income' => $consignment->income,
+                    'exit_date' => $consignment->exit_date,
                 ];
             });
 

@@ -35,10 +35,9 @@
                 <div class="relative overflow-x-auto drop-shadow-md sm:rounded-lg mx-4">
                     <div class="flex items-center justify-between" style="background:#EEF0F4">
                         <span class="col p-6 items-center"
-                            style="color: #161D6F;font-weight:bold; font-size:16px">Monitoring
-                            Barang</span>
+                            style="color: #161D6F;font-weight:bold; font-size:16px">Tabel Detail Pendapatan</span>
                         <!-- fungsi searching -->
-                        <div class="relative mr-5">
+                        <!-- <div class="relative mr-5">
                             <div
                                 class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
                                 <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -52,9 +51,9 @@
                                     class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Search">
                             </form>
-                        </div>
+                        </div> -->
                     </div>
-                    @if (!empty($search))
+                    <!-- @if (!empty($search))
                         @if (count($consignments) > 0)
                             <div class="alert alert-success">
                                 Ditemukan <strong>{{ count($consignments) }}</strong> Data:
@@ -64,7 +63,7 @@
                                 <h4>Data {{ $search }} tidak ditemukan</h4>
                             </div>
                         @endif
-                    @endif
+                    @endif -->
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                         <thead class="text-xs text-white uppercase bg-[#161D6F]">
                             <tr>
@@ -75,7 +74,10 @@
                                     Nama Barang
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Jumlah
+                                    Pendapatan
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Tanggal
                                 </th>
                             </tr>
                         </thead>
@@ -89,7 +91,10 @@
                                         {{ $consignment['product_name'] }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{ $consignment['quantity'] }}
+                                        {{ $consignment['income'] }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {{ $consignment['exit_date'] }}
                                     </td>
                                 </tr>
                             @endforeach
