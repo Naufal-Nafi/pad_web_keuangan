@@ -5,7 +5,7 @@
     <head>
         <title>Home</title>
     </head>
-    
+
 
 
     <section class="w-full min-h-screen flex">
@@ -15,7 +15,6 @@
                 </a>
             </div>
             <div class="h-1/2 flex">
-
                 <a href="/transaksi" class=""> <canvas id="reportPieChart"></canvas>
                 </a>
                 <div>
@@ -53,32 +52,32 @@
                             Detail Pendapatan</span>
                         <!-- fungsi searching -->
                         <!-- <div class="relative mr-5">
-                                                                    <div
-                                                                        class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                                                            fill="none" viewBox="0 0 20 20">
-                                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                                                stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                                                        </svg>
-                                                                    </div>
-                                                                    <form action="{{ route('mainpage.search') }}" method="GET">
-                                                                        <input type="text" name="search" id="table-search"
-                                                                            class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                                                                            placeholder="Search">
-                                                                    </form>
-                                                                </div> -->
+                                                                            <div
+                                                                                class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+                                                                                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                                                    fill="none" viewBox="0 0 20 20">
+                                                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                                                                </svg>
+                                                                            </div>
+                                                                            <form action="{{ route('mainpage.search') }}" method="GET">
+                                                                                <input type="text" name="search" id="table-search"
+                                                                                    class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                                                                                    placeholder="Search">
+                                                                            </form>
+                                                                        </div> -->
                     </div>
                     <!-- @if (!empty($search))
-                                                                @if (count($consignments) > 0)
-                                                                    <div class="alert alert-success">
-                                                                        Ditemukan <strong>{{ count($consignments) }}</strong> Data:
-                                                                    </div>
-                                                                @else
-                                                                    <div class="alert alert-warning">
-                                                                        <h4>Data {{ $search }} tidak ditemukan</h4>
-                                                                    </div>
-                                                                @endif
-                                                            @endif -->
+                                                                        @if (count($consignments) > 0)
+                                                                            <div class="alert alert-success">
+                                                                                Ditemukan <strong>{{ count($consignments) }}</strong> Data:
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="alert alert-warning">
+                                                                                <h4>Data {{ $search }} tidak ditemukan</h4>
+                                                                            </div>
+                                                                        @endif
+                                                                    @endif -->
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                         <thead class="text-xs text-white uppercase bg-[#161D6F]">
                             <tr>
@@ -117,6 +116,66 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <!-- Chart dan Tabel untuk masing-masing waktu -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">7 Hari Terakhir</h2>
+            <a href="/transaksi"><canvas id="chart7"></canvas></a>
+            <table id="table7" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">Produk</th>
+                        <th class="px-4 py-2 font-medium">Income</th>
+                        <th class="px-4 py-2 font-medium">Persentase</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-semibold mb-2">14 Hari Terakhir</h2>
+            <a href="/transaksi"><canvas id="chart14"></canvas></a>
+            <table id="table14" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">Produk</th>
+                        <th class="px-4 py-2 font-medium">Income</th>
+                        <th class="px-4 py-2 font-medium">Persentase</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-semibold mb-2">30 Hari Terakhir</h2>
+            <a href="/transaksi"><canvas id="chart30"></canvas></a>
+            <table id="table30" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">Produk</th>
+                        <th class="px-4 py-2 font-medium">Income</th>
+                        <th class="px-4 py-2 font-medium">Persentase</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-semibold mb-2">12 Bulan Terakhir</h2>
+            <a href="/transaksi"><canvas id="chart365"></canvas></a>
+            <table id="table365" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">Produk</th>
+                        <th class="px-4 py-2 font-medium">Income</th>
+                        <th class="px-4 py-2 font-medium">Persentase</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </section>
 
@@ -229,13 +288,84 @@
                     data.forEach((item, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `        
-                          <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> ${item.label}</td>
-                          <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                          <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                        `;
+                                  <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> ${item.label}</td>
+                                  <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                  <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                `;
                         tbody.appendChild(row);
                     });
                 });
+        });
+    </script>
+
+    <script>
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+            '#8BC34A', '#00ACC1', '#FF7043', '#9575CD'
+        ];
+
+        const timeFrames = [
+            { days: 7, chartId: 'chart7', tableId: 'table7' },
+            { days: 14, chartId: 'chart14', tableId: 'table14' },
+            { days: 30, chartId: 'chart30', tableId: 'table30' },
+            { days: 365, chartId: 'chart365', tableId: 'table365' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            timeFrames.forEach(frame => {
+                fetch(`/dashboard/income-percentage/${frame.days}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const labels = data.map(item => item.label);
+                        const percentages = data.map(item => item.percentage);
+                        const incomes = data.map(item => item.income);
+
+                        // Pie Chart
+                        const ctx = document.getElementById(frame.chartId).getContext('2d');
+                        new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Persentase Income',
+                                    data: percentages,
+                                    backgroundColor: colors.slice(0, data.length),
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom'
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                return `${context.label}: ${context.raw}%`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // Tabel
+                        const tbody = document.querySelector(`#${frame.tableId} tbody`);
+                        data.forEach((item, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td class="px-4 py-2 text-gray-800">
+                                    <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
+                                    ${item.label}
+                                </td>
+                                <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    });
+            });
         });
     </script>
 @endsection

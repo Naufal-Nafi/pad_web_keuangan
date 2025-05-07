@@ -181,13 +181,38 @@ class KeuanganController extends Controller
         return view('laporan.riwayat', compact('total_omset', 'total_profit'));
     }
 
-    public function getIncomePercentage()
+    // public function getIncomePercentage()
+    // {
+    //     $data = Consignment::select(
+    //         'products.product_name',
+    //         DB::raw('SUM(consignments.income) as total_income')
+    //     )
+    //         ->join('products', 'products.product_id', '=', 'consignments.product_id')
+    //         ->groupBy('products.product_name')
+    //         ->get();
+
+    //     $totalIncome = $data->sum('total_income');
+
+    //     $chartData = $data->map(function ($item) use ($totalIncome) {
+    //         $percentage = $totalIncome > 0 ? round(($item->total_income / $totalIncome) * 100, 2) : 0;
+    //         return [
+    //             'label' => $item->product_name,
+    //             'percentage' => $percentage,
+    //             'income' => $item->total_income,
+    //         ];
+    //     });
+
+    //     return response()->json($chartData);
+    // }
+
+    private function getIncomePercentageFiltered($startDate)
     {
         $data = Consignment::select(
             'products.product_name',
             DB::raw('SUM(consignments.income) as total_income')
         )
             ->join('products', 'products.product_id', '=', 'consignments.product_id')
+            ->where('consignments.entry_date', '>=', $startDate)
             ->groupBy('products.product_name')
             ->get();
 
@@ -203,6 +228,30 @@ class KeuanganController extends Controller
         });
 
         return response()->json($chartData);
+    }
+
+    public function getIncomePercentageLast7Days()
+    {
+        $startDate = now()->subDays(7);
+        return $this->getIncomePercentageFiltered($startDate);
+    }
+
+    public function getIncomePercentageLast14Days()
+    {
+        $startDate = now()->subDays(14);
+        return $this->getIncomePercentageFiltered($startDate);
+    }
+
+    public function getIncomePercentageLast30Days()
+    {
+        $startDate = now()->subDays(30);
+        return $this->getIncomePercentageFiltered($startDate);
+    }
+
+    public function getIncomePercentageLast12Months()
+    {
+        $startDate = now()->subMonths(12);
+        return $this->getIncomePercentageFiltered($startDate);
     }
 
 
