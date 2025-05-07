@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/x-icon" href="src/Logo.png">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/countup.js@2.6.2/dist/countUp.umd.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -32,7 +33,7 @@
                     "opacity-70 hover:opacity-100" => $currentRoute !== "dashboard",
                     "opacity-100" => $currentRoute == "dashboard"
                 ])>
-                <img src="{{ asset('img/lucide--home.svg') }}" alt="Dashboard" class="w-9 h-6 mr-2">
+          <img src="{{ asset('img/lucide--home.svg') }}" alt="Dashboard" class="w-9 h-6 mr-2">
                     Dashboard
                     <span
                         class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'dashboard' ? 'scale-x-100' : '' }}"></span>
@@ -44,50 +45,50 @@
                     "opacity-70 hover:opacity-100" => $currentRoute !== "transaksi",
                     "opacity-100" => $currentRoute == "transaksi"
                 ])>
-                <img src="{{ asset('img/transaksi.svg') }}" alt="Transaksi" class="w-9 h-6 mr-2">
+    <img src="{{ asset('img/transaksi.svg') }}" alt="Transaksi" class="w-9 h-6 mr-2">
                     Transaksi
                     <span
                         class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'transaksi' ? 'scale-x-100' : '' }}"></span>
                 </a>
             </li>
+            <li>
+                <a href="/barang" @class([
+                    "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
+                    "opacity-70 hover:opacity-100" => $currentRoute !== "barang",
+                    "opacity-100 disabled" => $currentRoute == "barang"
+                ])>
+                    <img src="{{ asset('img/search.svg') }}" alt="Daftar Barang" class="w-9 h-6 mr-2">
+                    Daftar Pengeluaran
+                    <span
+                        class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'barang' ? 'scale-x-100' : '' }}"></span>
+                </a>
+            </li>
 
             @if (Auth::user()->role == 'owner')
-                        <!-- <li>
-                            <a href="/mingguan" @class([
-                                "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
-                                "opacity-70 hover:opacity-100" => $currentRoute !== "mingguan",
-                                "opacity-100" => $currentRoute == "mingguan"
-                            ])>
-                                <img src="{{ asset('img/logo_1.svg') }}" alt="Laporan Keuangan" class="w-9 h-6 mr-2">
-                                Laporan Keuangan
-                                <span
-                                    class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'mingguan' ? 'scale-x-100' : '' }}"></span>
-                            </a>
-                        </li> -->
-                        <li>
-                            <a href="/barang" @class([
-                                "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
-                                "opacity-70 hover:opacity-100" => $currentRoute !== "barang",
-                                "opacity-100 disabled" => $currentRoute == "barang"
-                            ])>
-                                <img src="{{ asset('img/search.svg') }}" alt="Daftar Barang" class="w-9 h-6 mr-2">
-                                Daftar Pengeluaran
-                                <span
-                                    class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'barang' ? 'scale-x-100' : '' }}"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/pegawai" @class([
-                                "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
-                                "opacity-70 hover:opacity-100" => $currentRoute !== "pegawai",
-                                "opacity-100" => $currentRoute == "pegawai"
-                            ])>
-                                <img src="{{ asset('img/profile.svg') }}" alt="Manajemen Pegawai" class="w-9 h-6 mr-2">
-                                Manajemen Pegawai
-                                <span
-                                    class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'pegawai' ? 'scale-x-100' : '' }}"></span>
-                            </a>
-                        </li>
+                <!-- <li>
+                                <a href="/mingguan" @class([
+                                    "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
+                                    "opacity-70 hover:opacity-100" => $currentRoute !== "mingguan",
+                                    "opacity-100" => $currentRoute == "mingguan"
+                                ])>
+                                    <img src="{{ asset('img/logo_1.svg') }}" alt="Laporan Keuangan" class="w-9 h-6 mr-2">
+                                    Laporan Keuangan
+                                    <span
+                                        class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'mingguan' ? 'scale-x-100' : '' }}"></span>
+                                </a>
+                            </li> -->
+                <li>
+                    <a href="/pegawai" @class([
+                        "flex flex-row items-center py-2 px-3 text-white rounded md:p-0 relative group",
+                        "opacity-70 hover:opacity-100" => $currentRoute !== "pegawai",
+                        "opacity-100" => $currentRoute == "pegawai"
+                    ])>
+                        <img src="{{ asset('img/profile.svg') }}" alt="Manajemen Pegawai" class="w-9 h-6 mr-2">
+                        Manajemen Pegawai
+                        <span
+                            class="absolute -bottom-3 left-1 w-full h-0.5 bg-white transition-transform scale-x-0 group-hover:scale-x-100 {{ $currentRoute == 'pegawai' ? 'scale-x-100' : '' }}"></span>
+                    </a>
+                </li>
             @endif
         </ul>
 
@@ -126,7 +127,9 @@
 </nav>
 
 <style>
-    [x-cloak] { display: none !important; }
+    [x-cloak] {
+        display: none !important;
+    }
 </style>
 
 <body class="bg-[#F4F1E6]">

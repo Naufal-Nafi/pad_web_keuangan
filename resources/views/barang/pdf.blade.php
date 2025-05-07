@@ -85,7 +85,7 @@
     </style>
 </head>
 <body>
-    <h1>DAFTAR BARANG</h1>
+    <h1>DAFTAR PENGELUARAN</h1>
     <p class="periode">PERIODE</p>
     <p class="tgl">{{ date('j F Y', strtotime($start_date)) }} - {{ date('j F Y', strtotime($end_date)) }}</p>
 

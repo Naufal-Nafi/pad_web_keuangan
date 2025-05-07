@@ -15,6 +15,7 @@
     },
     "dependencies": {
         "chart.js": "^4.4.6",
+        "countup.js": "^2.8.2",
         "flowbite": "^2.5.2"
     }
 }
