@@ -36,6 +36,11 @@ class Consignment extends Model
     {
         return $this->belongsTo(Store::class, 'store_id', 'store_id');
     }
+    
+    public function user() 
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
 
     public function getCirculationDurationAttribute()
     {
@@ -67,4 +72,6 @@ class Consignment extends Model
     //         }
     //     });
     // }
+
+
 }

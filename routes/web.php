@@ -27,7 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/transaksi/update/{consignment_id}', [ConsignmentController::class, 'laporanUpdate'])->name('laporan.update');
     Route::get('/transaksi/edit/{consignment_id}', [ConsignmentController::class, 'laporanEdit'])->name('laporan.edit');
     Route::delete('/transaksi/{consignment_id}', [ConsignmentController::class, 'laporanDestroy'])->name('laporan.destroy');
-//route yang hanya bisa diakses oleh owner
+    Route::get('/transaksi/print/{consignment_id}', [ConsignmentController::class, 'printReceipt'])->name('laporan.print');
+    //route yang hanya bisa diakses oleh owner
     Route::middleware('owner')->group(function () {
 //route ke manajemen pegawai, search, dan CRUD pegawai
         Route::get('/pegawai', [UserController::class, 'index'])->name('pegawai.index');

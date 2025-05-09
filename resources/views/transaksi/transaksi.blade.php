@@ -134,7 +134,9 @@
                                         Hapus
                                     </span>
                                 </form>
-                                <a href=""
+
+                                <!-- Tombol Print -->
+                                <a href="{{ route('laporan.print', $consignment['consignment_id']) }}"
                                     class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

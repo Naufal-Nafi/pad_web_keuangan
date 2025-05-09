@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Consignment;
+use App\Models\Product;
+use App\Models\Store;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +16,15 @@ class ConsignmentSeeder extends Seeder
      */
     public function run(): void
     {
+        $productIds = Product::pluck('product_id')->toArray();
+        $storeIds = Store::pluck('store_id')->toArray();
+        $userIds = User::pluck('user_id')->toArray();
+
         for ($i = 0; $i < 10; $i++) {
             Consignment::create([
-                'product_id' => fake()->numberBetween(1, 10),
-                'store_id' => fake()->numberBetween(1, 10),
-                'user_id' => fake()->numberBetween(1, 10),
+                'product_id' => fake()->randomElement($productIds),
+                'store_id' => fake()->randomElement($storeIds),
+                'user_id' => fake()->randomElement($userIds),
                 'entry_date' => fake()->date(),
                 'exit_date' => fake()->date(),
                 'stock' => fake()->numberBetween(30, 100),
