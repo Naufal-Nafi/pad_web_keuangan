@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Consignment;
 use App\Models\Expense;
 use App\Models\Product;
+use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -268,5 +269,34 @@ class KeuanganController extends Controller
     }
 
 
+    public function storeIncomes()
+    {
+        // Ambil total income per store
+        $stores = Store::with([
+            'consignments' => function ($query) {
+                $query->select('store_id', DB::raw('SUM(sold * price) as total_income'))->groupBy('store_id');
+            }
+        ])->get();
+
+        // Hitung total income dari semua toko
+        $totalIncome = 0;
+        foreach ($stores as $store) {
+            $totalIncome += $store->consignments->first()->total_income ?? 0;
+        }
+
+        // Format hasil
+        $result = $stores->map(function ($store) use ($totalIncome) {
+            $income = $store->consignments->first()->total_income ?? 0;
+            $percentage = $totalIncome > 0 ? ($income / $totalIncome) * 100 : 0;
+
+            return [
+                'store_name' => $store->store_name,
+                'total_income' => (float) $income,
+                'percentage' => round($percentage, 2),
+            ];
+        });
+
+        return response()->json($result);
+    }
 
 }

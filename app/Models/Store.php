@@ -15,6 +15,7 @@ class Store extends Model
 
     public function consignments()
     {
-        return $this->hasMany(Consignment::class);
+        return $this->hasMany(Consignment::class, 'store_id', 'store_id');
     }
+
 }

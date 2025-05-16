@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/income-percentage/14', [KeuanganController::class, 'getIncomePercentageLast14Days']);
     Route::get('/dashboard/income-percentage/30', [KeuanganController::class, 'getIncomePercentageLast30Days']);
     Route::get('/dashboard/income-percentage/365', [KeuanganController::class, 'getIncomePercentageLast12Months']);
+    Route::get('/dashboard/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
 //route ke transaksi, dan CRUD kongsi
     Route::get('/transaksi', [ConsignmentController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/transaksi/tambah', [ConsignmentController::class, 'laporanCreate'])->name('laporan.create');
