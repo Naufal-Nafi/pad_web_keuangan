@@ -27,12 +27,15 @@ class KeuanganController extends Controller
         $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $endOfWeek = Carbon::now()->endOfWeek(Carbon::SUNDAY);
 
-        $incomes = Consignment::whereBetween('entry_date', [$startOfWeek, $endOfWeek])
+        // Ambil consignment + relasi produk untuk hitung income
+        $incomes = Consignment::with('product')
+            ->whereBetween('entry_date', [$startOfWeek, $endOfWeek])
             ->get()
             ->groupBy(function ($item) {
                 return Carbon::parse($item->entry_date)->format('Y-m-d');
             });
 
+        // Ambil data pengeluaran (expenses)
         $expenses = Expense::whereBetween('date', [$startOfWeek, $endOfWeek])
             ->get()
             ->groupBy(function ($item) {
@@ -40,21 +43,31 @@ class KeuanganController extends Controller
             });
 
         $dataHarian = [];
-        for ($date = $startOfWeek; $date->lte($endOfWeek); $date->addDay()) {
+        for ($date = $startOfWeek->copy(); $date->lte($endOfWeek); $date->addDay()) {
             $formattedDate = $date->format('Y-m-d');
+
+            // Hitung income dari sold * price
+            $dailyIncome = isset($incomes[$formattedDate])
+                ? $incomes[$formattedDate]->sum(function ($item) {
+                    return $item->sold * ($item->product->price ?? 0);
+                })
+                : 0;
+
+            // Hitung pengeluaran
+            $dailyExpense = isset($expenses[$formattedDate])
+                ? $expenses[$formattedDate]->sum('amount')
+                : 0;
+
             $dataHarian[] = [
                 'day' => $date->format('l'),
-                'masuk' => isset($incomes[$formattedDate])
-                    ? $incomes[$formattedDate]->sum('income')
-                    : 0,
-                'keluar' => isset($expenses[$formattedDate])
-                    ? $expenses[$formattedDate]->sum('amount')
-                    : 0,
+                'masuk' => $dailyIncome,
+                'keluar' => $dailyExpense,
             ];
         }
 
         return response()->json($dataHarian);
     }
+
 
     // fungsi untuk mendapatkan data laporan mingguan (pemasukan dan pengeluaran) selama satu bulan
     public function getWeeklyReport()
@@ -205,54 +218,55 @@ class KeuanganController extends Controller
     //     return response()->json($chartData);
     // }
 
-    private function getIncomePercentageFiltered($startDate)
+    public function getIncomePercentageByDays(Carbon $days)
     {
-        $data = Consignment::select(
-            'products.product_name',
-            DB::raw('SUM(consignments.income) as total_income')
-        )
-            ->join('products', 'products.product_id', '=', 'consignments.product_id')
-            ->where('consignments.entry_date', '>=', $startDate)
-            ->groupBy('products.product_name')
+        $consignments = Consignment::with('product')
+            ->whereDate('entry_date', '>=', $days)
             ->get();
 
-        $totalIncome = $data->sum('total_income');
 
-        $chartData = $data->map(function ($item) use ($totalIncome) {
-            $percentage = $totalIncome > 0 ? round(($item->total_income / $totalIncome) * 100, 2) : 0;
-            return [
-                'label' => $item->product_name,
-                'percentage' => $percentage,
-                'income' => $item->total_income,
-            ];
+        // Hitung income per produk
+        $incomeData = $consignments->groupBy('product.product_name')->map(function ($group) {
+            return $group->sum(function ($item) {
+                return $item->sold * ($item->product->price ?? 0);
+            });
         });
+
+        $totalIncome = $incomeData->sum();
+
+        // Format hasil ke bentuk untuk chart
+        $chartData = $incomeData->map(function ($income, $productName) use ($totalIncome) {
+            $percentage = $totalIncome > 0 ? round(($income / $totalIncome) * 100, 2) : 0;
+            return [
+                'label' => $productName,
+                'percentage' => $percentage,
+                'income' => $income,
+            ];
+        })->values(); // Reset indexing
 
         return response()->json($chartData);
     }
 
     public function getIncomePercentageLast7Days()
     {
-        $startDate = now()->subDays(7);
-        return $this->getIncomePercentageFiltered($startDate);
+        return $this->getIncomePercentageByDays(now()->subDays(7));
     }
 
     public function getIncomePercentageLast14Days()
     {
-        $startDate = now()->subDays(14);
-        return $this->getIncomePercentageFiltered($startDate);
+        return $this->getIncomePercentageByDays(now()->subDays(14));
     }
 
     public function getIncomePercentageLast30Days()
     {
-        $startDate = now()->subDays(30);
-        return $this->getIncomePercentageFiltered($startDate);
+        return $this->getIncomePercentageByDays(now()->subDays(30));
     }
 
     public function getIncomePercentageLast12Months()
     {
-        $startDate = now()->subMonths(12);
-        return $this->getIncomePercentageFiltered($startDate);
+        return $this->getIncomePercentageByDays(now()->subMonths(12));
     }
+
 
 
 }

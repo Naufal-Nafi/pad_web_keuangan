@@ -14,19 +14,43 @@
                 <a href="/transaksi"> <canvas id="dailyReportChart"></canvas>
                 </a>
             </div>
-            <div class="h-1/2 flex">
-                <a href="/transaksi" class=""> <canvas id="reportPieChart"></canvas>
-                </a>
-                <div>
-                    <table id="incomeTable" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left">
-                        <thead class="bg-gray-100">
-                            <th class="px-4 py-2 font-medium">Produk</th>
-                            <th class="px-4 py-2 font-medium">Income</th>
-                            <th class="px-4 py-2 font-medium">Persentase</th>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+            <div class="h-1/2">
+                <div class="flex gap-2 justify-between mb-4">
+                    <h6 class="ms-4 font-bold">Pie chart Pendapatan kotor</h6>
+                    <div>
+                        <button class="time-filter px-3 py-1 bg-blue-500 text-white rounded" data-target="section7">7
+                            Hari</button>
+                        <button class="time-filter px-3 py-1 bg-gray-200 text-gray-800 rounded" data-target="section14">14
+                            Hari</button>
+                        <button class="time-filter px-3 py-1 bg-gray-200 text-gray-800 rounded" data-target="section30">30
+                            Hari</button>
+                        <button class="time-filter px-3 py-1 bg-gray-200 text-gray-800 rounded" data-target="section365">12
+                            Bulan</button>
+                    </div>
                 </div>
+                <!-- Chart dan Tabel untuk masing-masing waktu -->
+                @foreach (['7' => 'section7', '14' => 'section14', '30' => 'section30', '365' => 'section365'] as $days => $sectionId)
+                    <div id="{{ $sectionId }}"
+                        class="time-section {{ $days == '7' ? '' : 'hidden' }} h-1/2 flex gap-4 flex-wrap">
+                        <!-- <h2>{{ $days }}</h2> -->
+                        <a href="/transaksi" class="flex-1">
+                            <canvas id="chart{{ $days }}"></canvas>
+                        </a>
+                        <div class="flex-1 overflow-auto">
+                            <table id="table{{ $days }}"
+                                class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-2 font-medium">Produk</th>
+                                        <th class="px-4 py-2 font-medium">Income</th>
+                                        <th class="px-4 py-2 font-medium">Persentase</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
         <div class="w-3/5 flex flex-col">
@@ -49,35 +73,8 @@
                 <div class="relative overflow-x-auto drop-shadow-md sm:rounded-lg mx-4">
                     <div class="flex items-center justify-between" style="background:#EEF0F4">
                         <span class="col p-6 items-center" style="color: #161D6F;font-weight:bold; font-size:16px">Tabel
-                            Detail Pendapatan</span>
-                        <!-- fungsi searching -->
-                        <!-- <div class="relative mr-5">
-                                                                            <div
-                                                                                class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                                                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                                                                    fill="none" viewBox="0 0 20 20">
-                                                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                                                                </svg>
-                                                                            </div>
-                                                                            <form action="{{ route('mainpage.search') }}" method="GET">
-                                                                                <input type="text" name="search" id="table-search"
-                                                                                    class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                                                                                    placeholder="Search">
-                                                                            </form>
-                                                                        </div> -->
-                    </div>
-                    <!-- @if (!empty($search))
-                                                                        @if (count($consignments) > 0)
-                                                                            <div class="alert alert-success">
-                                                                                Ditemukan <strong>{{ count($consignments) }}</strong> Data:
-                                                                            </div>
-                                                                        @else
-                                                                            <div class="alert alert-warning">
-                                                                                <h4>Data {{ $search }} tidak ditemukan</h4>
-                                                                            </div>
-                                                                        @endif
-                                                                    @endif -->
+                            Detail Pendapatan</span>                        
+                    </div>                   
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                         <thead class="text-xs text-white uppercase bg-[#161D6F]">
                             <tr>
@@ -117,66 +114,6 @@
                 </div>
             </div>
         </div>
-        <!-- Chart dan Tabel untuk masing-masing waktu -->
-        <div>
-            <h2 class="text-lg font-semibold mb-2">7 Hari Terakhir</h2>
-            <a href="/transaksi"><canvas id="chart7"></canvas></a>
-            <table id="table7" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 font-medium">Produk</th>
-                        <th class="px-4 py-2 font-medium">Income</th>
-                        <th class="px-4 py-2 font-medium">Persentase</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div>
-            <h2 class="text-lg font-semibold mb-2">14 Hari Terakhir</h2>
-            <a href="/transaksi"><canvas id="chart14"></canvas></a>
-            <table id="table14" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 font-medium">Produk</th>
-                        <th class="px-4 py-2 font-medium">Income</th>
-                        <th class="px-4 py-2 font-medium">Persentase</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div>
-            <h2 class="text-lg font-semibold mb-2">30 Hari Terakhir</h2>
-            <a href="/transaksi"><canvas id="chart30"></canvas></a>
-            <table id="table30" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 font-medium">Produk</th>
-                        <th class="px-4 py-2 font-medium">Income</th>
-                        <th class="px-4 py-2 font-medium">Persentase</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div>
-            <h2 class="text-lg font-semibold mb-2">12 Bulan Terakhir</h2>
-            <a href="/transaksi"><canvas id="chart365"></canvas></a>
-            <table id="table365" class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left mt-4">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 font-medium">Produk</th>
-                        <th class="px-4 py-2 font-medium">Income</th>
-                        <th class="px-4 py-2 font-medium">Persentase</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
     </section>
 
     <script>
@@ -202,6 +139,11 @@
         // logic untuk isi data pada line chart harian
         document.addEventListener('DOMContentLoaded', () => {
             const ctx = document.getElementById('dailyReportChart').getContext('2d');
+            const chartInstances = {}; // Menyimpan instance chart per waktu
+            const chartDataStore = {}; // Menyimpan data yang sudah di-fetch
+            timeFrames.forEach(frame => {
+
+            })
             fetch('/dashboard/daily-report')
                 .then(response => response.json())
                 .then(data => {
@@ -231,38 +173,49 @@
                             },
                             animation: {
                                 duration: 1000,
-                                easing: 'easeOutBounce'
+                                easing: 'easeOutCirc'
                             },
                             hover: {
                                 animationDuration: 500
-                            }
+                            },
+                            tension: 0.5
                         },
                     });
                 })
                 .catch(error => console.error('Error loading data:', error));
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
 
-            fetch('/dashboard/income-percentage') // sesuaikan dengan rute
+    <script>
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+            '#8BC34A', '#00ACC1', '#FF7043', '#9575CD'
+        ];
+
+        const timeFrames = [
+            { days: 7, chartId: 'chart7', tableId: 'table7', rendered: false },
+            { days: 14, chartId: 'chart14', tableId: 'table14', rendered: false },
+            { days: 30, chartId: 'chart30', tableId: 'table30', rendered: false },
+            { days: 365, chartId: 'chart365', tableId: 'table365', rendered: false }
+        ];
+
+
+
+        function renderChart(frame) {
+            fetch(`/dashboard/income-percentage/${frame.days}`)
                 .then(response => response.json())
                 .then(data => {
                     const labels = data.map(item => item.label);
                     const percentages = data.map(item => item.percentage);
                     const incomes = data.map(item => item.income);
 
-                    const colors = [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
-                    ];
-
-                    const ctx = document.getElementById('reportPieChart').getContext('2d');
+                    const ctx = document.getElementById(frame.chartId).getContext('2d');
                     new Chart(ctx, {
                         type: 'pie',
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Persentase Income per Produk',
+                                label: 'Persentase Income',
                                 data: percentages,
                                 backgroundColor: colors.slice(0, data.length),
                                 borderWidth: 1
@@ -284,88 +237,59 @@
                             }
                         }
                     });
-                    const tbody = document.querySelector('#incomeTable tbody');
+
+                    // Table
+                    const tbody = document.querySelector(`#${frame.tableId} tbody`);
+                    tbody.innerHTML = ''; // Bersihkan sebelumnya
                     data.forEach((item, index) => {
                         const row = document.createElement('tr');
-                        row.innerHTML = `        
-                                  <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> ${item.label}</td>
-                                  <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                  <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                        row.innerHTML = `
+                                    <td class="px-4 py-2 text-gray-800">
+                                        <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
+                                        ${item.label}
+                                    </td>
+                                    <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                    <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
                                 `;
                         tbody.appendChild(row);
                     });
+
+                    frame.rendered = true;
                 });
-        });
+        }
+
     </script>
 
     <script>
-        const colors = [
-            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-            '#8BC34A', '#00ACC1', '#FF7043', '#9575CD'
-        ];
+        // Tombol filter
+        document.querySelectorAll('.time-filter').forEach(button => {
+            button.addEventListener('click', () => {
+                const target = button.dataset.target;
 
-        const timeFrames = [
-            { days: 7, chartId: 'chart7', tableId: 'table7' },
-            { days: 14, chartId: 'chart14', tableId: 'table14' },
-            { days: 30, chartId: 'chart30', tableId: 'table30' },
-            { days: 365, chartId: 'chart365', tableId: 'table365' }
-        ];
+                document.querySelectorAll('.time-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                document.getElementById(target).classList.remove('hidden');
+
+                document.querySelectorAll('.time-filter').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-800');
+                });
+
+                button.classList.add('bg-blue-500', 'text-white');
+                button.classList.remove('bg-gray-200', 'text-gray-800');
+
+                const frame = timeFrames.find(f => target.includes(f.days));
+                if (frame && !frame.rendered) {
+                    renderChart(frame);
+                }
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
-            timeFrames.forEach(frame => {
-                fetch(`/dashboard/income-percentage/${frame.days}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const labels = data.map(item => item.label);
-                        const percentages = data.map(item => item.percentage);
-                        const incomes = data.map(item => item.income);
-
-                        // Pie Chart
-                        const ctx = document.getElementById(frame.chartId).getContext('2d');
-                        new Chart(ctx, {
-                            type: 'pie',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Persentase Income',
-                                    data: percentages,
-                                    backgroundColor: colors.slice(0, data.length),
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: {
-                                        position: 'bottom'
-                                    },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function (context) {
-                                                return `${context.label}: ${context.raw}%`;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-
-                        // Tabel
-                        const tbody = document.querySelector(`#${frame.tableId} tbody`);
-                        data.forEach((item, index) => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td class="px-4 py-2 text-gray-800">
-                                    <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
-                                    ${item.label}
-                                </td>
-                                <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                            `;
-                            tbody.appendChild(row);
-                        });
-                    });
-            });
+            const defaultFrame = timeFrames.find(f => f.days === 7);
+            renderChart(defaultFrame);
         });
     </script>
 @endsection
