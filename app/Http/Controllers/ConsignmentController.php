@@ -183,21 +183,20 @@ class ConsignmentController extends Controller
     public function mainpageIndex()
     {
         $consignments = Consignment::with('product', 'store')
-            ->get()
-            // ->filter(function ($consignment) {
-            //     $status = ($consignment->quantity - $consignment->sold == 0) ? 'Close' : 'Open';
-            //     return $status === 'Open';
-            // })
-            ->map(function ($consignment) {
-                return [
-                    'store_name' => $consignment->store->store_name,
-                    'product_name' => $consignment->product->product_name,                    
-                    'income' => $consignment->sold * $consignment->product->price,
-                    'exit_date' => $consignment->exit_date,
-                ];
-            });
+            ->paginate(10); // Menampilkan 10 data per halaman
 
-        
+        // Transformasi setelah pagination
+        $consignments->getCollection()->transform(function ($consignment) {
+            return [
+                'store_name' => $consignment->store->store_name,
+                'product_name' => $consignment->product->product_name,
+                'income' => $consignment->sold * $consignment->product->price,
+                'exit_date' => $consignment->exit_date,
+            ];
+        });
+
+
+
         $totalIncome = Consignment::selectRaw('SUM(sold * products.price) as total')
             ->join('products', 'consignments.product_id', '=', 'products.product_id')
             ->value('total') ?? 0;
@@ -234,34 +233,34 @@ class ConsignmentController extends Controller
         return view('home.home', compact('consignments', 'search'));
     }
 
-    public function printReceipt($consignment_id) 
+    public function printReceipt($consignment_id)
     {
         $consignment = Consignment::with(['store', 'product', 'user'])
             ->findOrFail($consignment_id);
 
-            $nota = [
-                'nomor' => 'TRX-' . $consignment_id,
-                'nama_pelanggan' => $consignment->user->name,
-                'toko' => $consignment->store->store_name,
-                'tanggal_masuk' => Carbon::parse($consignment->entry_date)->format('d/m/Y'),
-                'tanggal_keluar' => Carbon::parse($consignment->exit_date)->format('d/m/Y'),
-                'jumlah_awal' => $consignment->stock,
-                'harga_satuan' => $consignment->price,
-                'total_awal' => $consignment->stock * $consignment->price,
-                'jumlah_kembali' => $consignment->stock - $consignment->sold,
-                'total_kembali' => ($consignment->stock - $consignment->sold) * $consignment->price,
-                'jumlah_bayar' => $consignment->sold,
-                'total_bayar' => $consignment->sold * $consignment->price,
-                'waktu_cetak' => now()->format('d/m/Y H:i:s')
-            ];
-            
-            // $pdf = PDF::loadView('transaksi.reciept', [
-            //     'consignment' => $consignment,
-            //     'total_price' => $consignment->sold * $consignment->product->price,
-            //     'date_printed' => now()->format('d-m-Y'),
-            // ]);
+        $nota = [
+            'nomor' => 'TRX-' . $consignment_id,
+            'nama_pelanggan' => $consignment->user->name,
+            'toko' => $consignment->store->store_name,
+            'tanggal_masuk' => Carbon::parse($consignment->entry_date)->format('d/m/Y'),
+            'tanggal_keluar' => Carbon::parse($consignment->exit_date)->format('d/m/Y'),
+            'jumlah_awal' => $consignment->stock,
+            'harga_satuan' => $consignment->price,
+            'total_awal' => $consignment->stock * $consignment->price,
+            'jumlah_kembali' => $consignment->stock - $consignment->sold,
+            'total_kembali' => ($consignment->stock - $consignment->sold) * $consignment->price,
+            'jumlah_bayar' => $consignment->sold,
+            'total_bayar' => $consignment->sold * $consignment->price,
+            'waktu_cetak' => now()->format('d/m/Y H:i:s')
+        ];
+
+        // $pdf = PDF::loadView('transaksi.reciept', [
+        //     'consignment' => $consignment,
+        //     'total_price' => $consignment->sold * $consignment->product->price,
+        //     'date_printed' => now()->format('d-m-Y'),
+        // ]);
 
         $pdf = PDF::loadView('transaksi.nota', ['nota' => $nota]);
-        return $pdf->download('nota-'.$consignment_id.'.pdf');
+        return $pdf->download('nota-' . $consignment_id . '.pdf');
     }
 }

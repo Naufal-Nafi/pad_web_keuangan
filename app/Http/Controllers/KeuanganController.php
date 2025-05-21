@@ -60,7 +60,7 @@ class KeuanganController extends Controller
                 : 0;
 
             $dataHarian[] = [
-                'day' => $date->format('l'),
+                'label' => $date->format('l'),
                 'masuk' => $dailyIncome,
                 'keluar' => $dailyExpense,
             ];
@@ -76,41 +76,61 @@ class KeuanganController extends Controller
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
 
-        $incomes = Consignment::selectRaw('FLOOR((DAY(entry_date) - 1) / 7) + 1 as week, SUM(income) as total_income')
+        // Ambil semua consignment dalam bulan ini beserta relasi product
+        $consignments = Consignment::with('product')
             ->whereBetween('entry_date', [$startOfMonth, $endOfMonth])
-            ->groupBy('week')
             ->get();
 
+        // Hitung pemasukan per minggu secara manual
+        $incomes = $consignments->groupBy(function ($item) {
+            return floor((Carbon::parse($item->entry_date)->day - 1) / 7) + 1;
+        })->map(function ($group) {
+            return $group->sum(function ($item) {
+                return $item->sold * ($item->product->price ?? 0);
+            });
+        });
+
+        // Ambil pengeluaran
         $expenses = Expense::selectRaw('FLOOR((DAY(date) - 1) / 7) + 1 as week, SUM(amount) as total_expense')
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->groupBy('week')
             ->get();
 
         $dataMingguan = [];
-        for ($week = 1; $week <= 4; $week++) {
-            $incomeData = $incomes->firstWhere('week', $week);
-            $expenseData = $expenses->firstWhere('week', $week);
+        for ($week = 1; $week <= 5; $week++) {
+            $income = $incomes->get($week, 0);
+            $expense = $expenses->firstWhere('week', $week);
 
             $dataMingguan[] = [
-                'week' => $week,
-                'masuk' => $incomeData ? $incomeData->total_income : 0,
-                'keluar' => $expenseData ? $expenseData->total_expense : 0,
+                'label' => "Minggu ke-$week",
+                'masuk' => $income,
+                'keluar' => $expense ? $expense->total_expense : 0,
             ];
         }
 
         return response()->json($dataMingguan);
     }
 
+
     // fungsi untuk mendapatkan data laporan bulanan (pemasukan dan pengeluaran) selama satu tahun
     public function getMonthlyReport()
     {
         $currentYear = Carbon::now()->year;
 
-        $incomes = Consignment::selectRaw('MONTH(entry_date) as month, SUM(income) as total_income')
+        $consignments = Consignment::with('product')
             ->whereYear('entry_date', $currentYear)
-            ->groupBy('month')
             ->get();
 
+        // Hitung pemasukan per bulan
+        $incomes = $consignments->groupBy(function ($item) {
+            return Carbon::parse($item->entry_date)->month;
+        })->map(function ($group) {
+            return $group->sum(function ($item) {
+                return $item->sold * ($item->product->price ?? 0);
+            });
+        });
+
+        // Ambil pengeluaran per bulan
         $expenses = Expense::selectRaw('MONTH(date) as month, SUM(amount) as total_expense')
             ->whereYear('date', $currentYear)
             ->groupBy('month')
@@ -118,18 +138,19 @@ class KeuanganController extends Controller
 
         $dataBulanan = [];
         for ($month = 1; $month <= 12; $month++) {
-            $incomeData = $incomes->firstWhere('month', $month);
-            $expenseData = $expenses->firstWhere('month', $month);
+            $income = $incomes->get($month, 0);
+            $expense = $expenses->firstWhere('month', $month);
 
             $dataBulanan[] = [
-                'month' => Carbon::create()->month($month)->format('F'),
-                'masuk' => $incomeData ? $incomeData->total_income : 0,
-                'keluar' => $expenseData ? $expenseData->total_expense : 0,
+                'label' => Carbon::create()->month($month)->format('F'),
+                'masuk' => $income,
+                'keluar' => $expense ? $expense->total_expense : 0,
             ];
         }
 
         return response()->json($dataBulanan);
     }
+
 
     // fungsi untuk mendapatkan data laporan tahunan (pemasukan dan pengeluaran)
     public function getYearlyReport()
@@ -195,30 +216,6 @@ class KeuanganController extends Controller
         return view('laporan.riwayat', compact('total_omset', 'total_profit'));
     }
 
-    // public function getIncomePercentage()
-    // {
-    //     $data = Consignment::select(
-    //         'products.product_name',
-    //         DB::raw('SUM(consignments.income) as total_income')
-    //     )
-    //         ->join('products', 'products.product_id', '=', 'consignments.product_id')
-    //         ->groupBy('products.product_name')
-    //         ->get();
-
-    //     $totalIncome = $data->sum('total_income');
-
-    //     $chartData = $data->map(function ($item) use ($totalIncome) {
-    //         $percentage = $totalIncome > 0 ? round(($item->total_income / $totalIncome) * 100, 2) : 0;
-    //         return [
-    //             'label' => $item->product_name,
-    //             'percentage' => $percentage,
-    //             'income' => $item->total_income,
-    //         ];
-    //     });
-
-    //     return response()->json($chartData);
-    // }
-
     public function getIncomePercentageByDays(Carbon $days)
     {
         $consignments = Consignment::with('product')
@@ -236,14 +233,16 @@ class KeuanganController extends Controller
         $totalIncome = $incomeData->sum();
 
         // Format hasil ke bentuk untuk chart
-        $chartData = $incomeData->map(function ($income, $productName) use ($totalIncome) {
-            $percentage = $totalIncome > 0 ? round(($income / $totalIncome) * 100, 2) : 0;
-            return [
-                'label' => $productName,
-                'percentage' => $percentage,
-                'income' => $income,
-            ];
-        })->values(); // Reset indexing
+        $chartData = $incomeData
+            ->sortByDesc(null)
+            ->map(function ($income, $productName) use ($totalIncome) {
+                $percentage = $totalIncome > 0 ? round(($income / $totalIncome) * 100, 2) : 0;
+                return [
+                    'label' => $productName,
+                    'percentage' => $percentage,
+                    'income' => $income,
+                ];
+            })->values(); // Reset indexing
 
         return response()->json($chartData);
     }
@@ -285,16 +284,19 @@ class KeuanganController extends Controller
         }
 
         // Format hasil
-        $result = $stores->map(function ($store) use ($totalIncome) {
-            $income = $store->consignments->first()->total_income ?? 0;
-            $percentage = $totalIncome > 0 ? ($income / $totalIncome) * 100 : 0;
+        $result = $stores            
+            ->map(function ($store) use ($totalIncome) {
+                $income = $store->consignments->first()->total_income ?? 0;
+                $percentage = $totalIncome > 0 ? ($income / $totalIncome) * 100 : 0;
 
-            return [
-                'store_name' => $store->store_name,
-                'total_income' => (float) $income,
-                'percentage' => round($percentage, 2),
-            ];
-        });
+                return [
+                    'store_name' => $store->store_name,
+                    'total_income' => (float) $income,
+                    'percentage' => round($percentage, 2),
+                ];
+            })
+            ->sortByDesc('total_income')
+            ->values();
 
         return response()->json($result);
     }

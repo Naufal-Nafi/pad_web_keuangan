@@ -15,11 +15,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [ConsignmentController::class, 'mainpageIndex'])->name('mainpage.index');
     Route::get('/dashboard/search', [ConsignmentController::class, 'mainpageSearch'])->name('mainpage.search');
     Route::get('/dashboard/daily-report', [KeuanganController::class, 'getDailyReport']);
-//     Route::get('/dashboard/income-percentage', [KeuanganController::class, 'getIncomePercentage']);
-    Route::get('/dashboard/income-percentage/7', [KeuanganController::class, 'getIncomePercentageLast7Days']);
-    Route::get('/dashboard/income-percentage/14', [KeuanganController::class, 'getIncomePercentageLast14Days']);
-    Route::get('/dashboard/income-percentage/30', [KeuanganController::class, 'getIncomePercentageLast30Days']);
-    Route::get('/dashboard/income-percentage/365', [KeuanganController::class, 'getIncomePercentageLast12Months']);
+    Route::get('/dashboard/weekly-report', [KeuanganController::class, 'getWeeklyReport']);
+    Route::get('/dashboard/monthly-report', [KeuanganController::class, 'getMonthlyReport']);
+//     Route::get('/dashboard/income-percentage', [KeuanganController::class, 'getIncomePercentage']);        
     Route::get('/dashboard/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
 //route ke transaksi, dan CRUD kongsi
     Route::get('/transaksi', [ConsignmentController::class, 'laporanIndex'])->name('laporan.index');

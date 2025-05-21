@@ -6,14 +6,33 @@
         <title>Home</title>
     </head>
 
-
-
     <section class="w-full min-h-screen flex">
         <div class="w-2/5 flex flex-col">
-            <div class="">
-                <a href="/transaksi"> <canvas id="dailyReportChart"></canvas>
-                </a>
+            <div class="my-12">
+                <div class="flex gap-2 justify-between mb-4">
+                    <h6 class="ms-4 font-bold">Line Chart Laporan Transaksi</h6>
+                    <div>
+                        <button class="report-filter px-3 py-1 bg-blue-500 text-white rounded"
+                            data-target="dailySection">Daily</button>
+                        <button class="report-filter px-3 py-1 bg-gray-200 text-gray-800 rounded"
+                            data-target="weeklySection">Weekly</button>
+                        <button class="report-filter px-3 py-1 bg-gray-200 text-gray-800 rounded"
+                            data-target="monthlySection">Monthly</button>
+                    </div>
+                </div>
+
+                <!-- Section per chart -->
+                <div id="dailySection" class="report-section">
+                    <a href="/transaksi"><canvas id="dailyReportChart"></canvas></a>
+                </div>
+                <div id="weeklySection" class="report-section hidden">
+                    <a href="/transaksi"><canvas id="weeklyReportChart"></canvas></a>
+                </div>
+                <div id="monthlySection" class="report-section hidden">
+                    <a href="/transaksi"><canvas id="monthlyReportChart"></canvas></a>
+                </div>
             </div>
+
             <div class="my-12">
                 <div class="flex gap-2 justify-between mb-4">
                     <h6 class="ms-4 font-bold">Pie chart Pendapatan kotor</h6>
@@ -133,6 +152,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="p-4">
+                        {{ $consignments->links() }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -158,39 +180,46 @@
 
 
     <script>
-        // logic untuk isi data pada line chart harian
-        document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('dailyReportChart').getContext('2d');
-            const chartInstances = {}; // Menyimpan instance chart per waktu
-            const chartDataStore = {}; // Menyimpan data yang sudah di-fetch
-            timeFrames.forEach(frame => {
+        const reportFrames = [
+            { id: 'dailyReportChart', sectionId: 'dailySection', url: '/dashboard/daily-report', rendered: false },
+            { id: 'weeklyReportChart', sectionId: 'weeklySection', url: '/dashboard/weekly-report', rendered: false },
+            { id: 'monthlyReportChart', sectionId: 'monthlySection', url: '/dashboard/monthly-report', rendered: false }
+        ];
 
-            })
-            fetch('/dashboard/daily-report')
+        function renderLineChart(frame) {
+            fetch(frame.url)
                 .then(response => response.json())
                 .then(data => {
+                    const ctx = document.getElementById(frame.id).getContext('2d');
                     new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: data.map(row => ` ${row.day}`),
-                            datasets: [{
-                                label: 'Masuk',
-                                data: data.map(row => row.masuk),
-                                borderColor: '#20BB14',
-                                fill: false
-                            },
-                            {
-                                label: 'Keluar',
-                                data: data.map(row => row.keluar),
-                                borderColor: '#E21F03',
-                                fill: false
-                            },
-                            ],
+                            labels: data.map(row => row.label),
+                            datasets: [
+                                {
+                                    label: 'Masuk',
+                                    data: data.map(row => row.masuk),
+                                    backgroundColor: 'rgba(51, 160, 44, 1)',
+                                    borderColor: 'rgba(51, 160, 44, 0.8)',
+                                    fill: false
+                                },
+                                {
+                                    label: 'Keluar',
+                                    data: data.map(row => row.keluar),
+                                    backgroundColor: 'rgba(227, 26, 28, 1)',
+                                    borderColor: 'rgba(227, 26, 28, 0.8)',
+                                    fill: false
+                                }
+                            ]
                         },
                         options: {
                             plugins: {
                                 legend: {
-                                    display: false
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 30,
+                                        boxHeight: 2
+                                    }
                                 }
                             },
                             animation: {
@@ -200,13 +229,47 @@
                             hover: {
                                 animationDuration: 500
                             },
-                            tension: 0.5
-                        },
+                            tension: 0.3
+                        }
                     });
+                    frame.rendered = true;
                 })
-                .catch(error => console.error('Error loading data:', error));
+                .catch(error => console.error(`Error loading chart for ${frame.id}:`, error));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load default (daily)
+            const defaultFrame = reportFrames.find(f => f.id === 'dailyReportChart');
+            renderLineChart(defaultFrame);
+
+            document.querySelectorAll('.report-filter').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetSection = button.dataset.target;
+
+                    // Tampilkan hanya section yang sesuai
+                    document.querySelectorAll('.report-section').forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    document.getElementById(targetSection).classList.remove('hidden');
+
+                    // Ubah style tombol
+                    document.querySelectorAll('.report-filter').forEach(btn => {
+                        btn.classList.remove('bg-blue-500', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-800');
+                    });
+                    button.classList.remove('bg-gray-200', 'text-gray-800');
+                    button.classList.add('bg-blue-500', 'text-white');
+
+                    // Render chart jika belum
+                    const frame = reportFrames.find(f => f.sectionId === targetSection);
+                    if (frame && !frame.rendered) {
+                        renderLineChart(frame);
+                    }
+                });
+            });
         });
     </script>
+
 
     <script>
         const colors = [
@@ -224,7 +287,7 @@
 
 
         function renderChart(frame) {
-            fetch(`/dashboard/income-percentage/${frame.days}`)
+            fetch(`/api/dashboard/income-percentage/${frame.days}`)
                 .then(response => response.json())
                 .then(data => {
                     const labels = data.map(item => item.label);
@@ -245,9 +308,10 @@
                         },
                         options: {
                             responsive: true,
+                            rotation: 270,
                             plugins: {
                                 legend: {
-                                    position: 'bottom'
+                                    display: false
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -266,13 +330,13 @@
                     data.forEach((item, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                                                    <td class="px-4 py-2 text-gray-800">
-                                                        <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
-                                                        ${item.label}
-                                                    </td>
-                                                    <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                                    <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                `;
+                                                                            <td class="px-4 py-2 text-gray-800">
+                                                                                <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
+                                                                                ${item.label}
+                                                                            </td>
+                                                                            <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                                                            <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                                                        `;
                         tbody.appendChild(row);
                     });
 
@@ -342,6 +406,7 @@
                         },
                         options: {
                             responsive: true,
+                            rotation: 270,
                             plugins: {
                                 legend: {
                                     display: false
@@ -350,7 +415,7 @@
                                     callbacks: {
                                         label: function (context) {
                                             const percentage = data[context.dataIndex].percentage;
-                                            return `${context.label}: Rp ${context.formattedValue} (${percentage}%)`;
+                                            return `${context.label}: ${percentage}%`;
                                         }
                                     }
                                 }
@@ -358,16 +423,16 @@
                         }
                     })
                     // Isi Tabel
-                        const tbody = document.getElementById('incomeTableBody');
-                        data.forEach((item, index) => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `                    
-                                <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colorStores[index]};border-radius:3px;margin-right:2px;"></span>${item.store_name}</td>
-                                <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
-                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                            `;
-                            tbody.appendChild(row);
-                        });
+                    const tbody = document.getElementById('incomeTableBody');
+                    data.forEach((item, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `                    
+                                                        <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colorStores[index]};border-radius:3px;margin-right:2px;"></span>${item.store_name}</td>
+                                                        <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
+                                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                                    `;
+                        tbody.appendChild(row);
+                    });
                 })
         });
 
