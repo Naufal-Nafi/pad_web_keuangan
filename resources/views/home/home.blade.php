@@ -8,16 +8,18 @@
 
     <section class="w-full min-h-screen flex">
         <div class="w-2/5 flex flex-col">
-            <div class="my-12">
+            <div class="my-12 ">
                 <div class="flex gap-2 justify-between mb-4">
                     <h6 class="ms-4 font-bold">Line Chart Laporan Transaksi</h6>
                     <div>
                         <button class="report-filter px-3 py-1 bg-blue-500 text-white rounded"
-                            data-target="dailySection">Daily</button>
+                            data-target="dailySection">7-Hari</button>
                         <button class="report-filter px-3 py-1 bg-gray-200 text-gray-800 rounded"
-                            data-target="weeklySection">Weekly</button>
+                            data-target="fortnightlySection">14-Hari</button>
                         <button class="report-filter px-3 py-1 bg-gray-200 text-gray-800 rounded"
-                            data-target="monthlySection">Monthly</button>
+                            data-target="weeklySection">30-Hari</button>
+                        <button class="report-filter px-3 py-1 bg-gray-200 text-gray-800 rounded"
+                            data-target="monthlySection">12-Bulan</button>
                     </div>
                 </div>
 
@@ -25,11 +27,14 @@
                 <div id="dailySection" class="report-section">
                     <a href="/transaksi"><canvas id="dailyReportChart"></canvas></a>
                 </div>
+                <div id="fortnightlySection" class="report-section hidden">
+                    <a href="/transaksi"><canvas class="min-h-[350px]" id="fortnightlyReportChart"></canvas></a>
+                </div>
                 <div id="weeklySection" class="report-section hidden">
-                    <a href="/transaksi"><canvas id="weeklyReportChart"></canvas></a>
+                    <a href="/transaksi"><canvas class="min-h-[350px]" id="weeklyReportChart"></canvas></a>
                 </div>
                 <div id="monthlySection" class="report-section hidden">
-                    <a href="/transaksi"><canvas id="monthlyReportChart"></canvas></a>
+                    <a href="/transaksi"><canvas class="min-h-[350px]" id="monthlyReportChart"></canvas></a>
                 </div>
             </div>
 
@@ -53,7 +58,7 @@
                         class="time-section {{ $days == '7' ? '' : 'hidden' }} h-1/2 flex gap-4 flex-wrap">
                         <!-- <h2>{{ $days }}</h2> -->
                         <a href="/transaksi" class="flex-1">
-                            <canvas id="chart{{ $days }}"></canvas>
+                            <canvas class="size-[300px]" id="chart{{ $days }}"></canvas>
                         </a>
                         <div class="flex-1 overflow-auto">
                             <table id="table{{ $days }}"
@@ -181,9 +186,10 @@
 
     <script>
         const reportFrames = [
-            { id: 'dailyReportChart', sectionId: 'dailySection', url: '/dashboard/daily-report', rendered: false },
-            { id: 'weeklyReportChart', sectionId: 'weeklySection', url: '/dashboard/weekly-report', rendered: false },
-            { id: 'monthlyReportChart', sectionId: 'monthlySection', url: '/dashboard/monthly-report', rendered: false }
+            { id: 'dailyReportChart', sectionId: 'dailySection', url: '/api/dashboard/daily-report', rendered: false },
+            { id: 'fortnightlyReportChart', sectionId: 'fortnightlySection', url: '/api/dashboard/fortnightly-report', rendered: false },
+            { id: 'weeklyReportChart', sectionId: 'weeklySection', url: '/api/dashboard/weekly-report', rendered: false },
+            { id: 'monthlyReportChart', sectionId: 'monthlySection', url: '/api/dashboard/monthly-report', rendered: false }
         ];
 
         function renderLineChart(frame) {
@@ -229,8 +235,14 @@
                             hover: {
                                 animationDuration: 500
                             },
-                            tension: 0.3
-                        }
+                            tension: 0.3,
+                            scales: {
+                                y: {
+                                    min: 0,                                    
+                                }
+                            }
+                        },
+
                     });
                     frame.rendered = true;
                 })
@@ -330,13 +342,13 @@
                     data.forEach((item, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                                                                            <td class="px-4 py-2 text-gray-800">
-                                                                                <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
-                                                                                ${item.label}
-                                                                            </td>
-                                                                            <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                                                            <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                                        `;
+                                                                                <td class="px-4 py-2 text-gray-800">
+                                                                                    <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
+                                                                                    ${item.label}
+                                                                                </td>
+                                                                                <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                                                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                                                            `;
                         tbody.appendChild(row);
                     });
 
@@ -386,7 +398,7 @@
             '#03A9F4', '#9C27B0'
         ];
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('/dashboard/store-income-percentage')
+            fetch('/api/dashboard/store-income-percentage')
                 .then(response => response.json())
                 .then(data => {
                     const labels = data.map(item => item.store_name);
@@ -427,10 +439,10 @@
                     data.forEach((item, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `                    
-                                                        <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colorStores[index]};border-radius:3px;margin-right:2px;"></span>${item.store_name}</td>
-                                                        <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
-                                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                    `;
+                                                            <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colorStores[index]};border-radius:3px;margin-right:2px;"></span>${item.store_name}</td>
+                                                            <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
+                                                            <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                                        `;
                         tbody.appendChild(row);
                     });
                 })

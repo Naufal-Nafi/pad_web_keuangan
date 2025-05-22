@@ -13,12 +13,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
 //route ke dashboard, fitur search, dan data chart
     Route::get('/dashboard', [ConsignmentController::class, 'mainpageIndex'])->name('mainpage.index');
-    Route::get('/dashboard/search', [ConsignmentController::class, 'mainpageSearch'])->name('mainpage.search');
-    Route::get('/dashboard/daily-report', [KeuanganController::class, 'getDailyReport']);
-    Route::get('/dashboard/weekly-report', [KeuanganController::class, 'getWeeklyReport']);
-    Route::get('/dashboard/monthly-report', [KeuanganController::class, 'getMonthlyReport']);
-//     Route::get('/dashboard/income-percentage', [KeuanganController::class, 'getIncomePercentage']);        
-    Route::get('/dashboard/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
+    Route::get('/dashboard/search', [ConsignmentController::class, 'mainpageSearch'])->name('mainpage.search');    
 //route ke transaksi, dan CRUD kongsi
     Route::get('/transaksi', [ConsignmentController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/transaksi/tambah', [ConsignmentController::class, 'laporanCreate'])->name('laporan.create');

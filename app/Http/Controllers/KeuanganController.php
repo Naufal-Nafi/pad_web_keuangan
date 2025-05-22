@@ -111,6 +111,55 @@ class KeuanganController extends Controller
         return response()->json($dataMingguan);
     }
 
+    public function getFortnightlyReport()
+    {
+        $startDate = Carbon::now()->subDays(13)->startOfDay(); // 14 hari termasuk hari ini
+        $endDate = Carbon::now()->endOfDay();
+
+        // Ambil consignment + relasi produk
+        $consignments = Consignment::with('product')
+            ->whereBetween('entry_date', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->entry_date)->format('Y-m-d');
+            });
+
+        // Ambil expenses
+        $expenses = Expense::whereBetween('date', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->date)->format('Y-m-d');
+            });
+
+        $dataFortnight = [];
+
+        $currentDate = $startDate->copy();
+        for ($day = 1; $day <= 14; $day++) {
+            $formattedDate = $currentDate->format('Y-m-d');
+
+            $dailyIncome = isset($consignments[$formattedDate])
+                ? $consignments[$formattedDate]->sum(function ($item) {
+                    return $item->sold * ($item->product->price ?? 0);
+                })
+                : 0;
+
+            $dailyExpense = isset($expenses[$formattedDate])
+                ? $expenses[$formattedDate]->sum('amount')
+                : 0;
+
+            $dataFortnight[] = [
+                'label' => $day,
+                'masuk' => $dailyIncome,
+                'keluar' => $dailyExpense,
+            ];
+
+            $currentDate->addDay();
+        }
+
+        return response()->json($dataFortnight);
+    }
+
+
 
     // fungsi untuk mendapatkan data laporan bulanan (pemasukan dan pengeluaran) selama satu tahun
     public function getMonthlyReport()
@@ -284,7 +333,7 @@ class KeuanganController extends Controller
         }
 
         // Format hasil
-        $result = $stores            
+        $result = $stores
             ->map(function ($store) use ($totalIncome) {
                 $income = $store->consignments->first()->total_income ?? 0;
                 $percentage = $totalIncome > 0 ? ($income / $totalIncome) * 100 : 0;
