@@ -11,7 +11,7 @@
 <section class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
     <div class="w-full rounded-full sm:max-w-md xl:p-0">
         <div class="bg-gradient-to-b from-[#CDDAF8] drop-shadow-lg to-[#E5EEFF] px-44 rounded-2xl space-y-4 md:space-y-6 sm:p-8">
-            <h1 class="text-center font-bold leading-tight tracking-tight text-white md:text-2xl">
+            <h1 class="text-center font-bold leading-tight tracking-tight text-black md:text-2xl">
                 Unduh Tabel
             </h1>
             <form class="space-y-4 md:space-y-6 px-10" method="post" action="{{ route('downloadPdf') }}">

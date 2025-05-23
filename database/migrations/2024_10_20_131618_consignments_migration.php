@@ -20,8 +20,7 @@ return new class extends Migration
             $table->date('entry_date')->nullable();
             $table->date('exit_date');
             $table->integer('stock');
-            $table->integer('sold')->nullable();
-            $table->decimal('price', 12, 0);
+            $table->integer('sold')->nullable();            
             $table->timestamps();
         });
     }

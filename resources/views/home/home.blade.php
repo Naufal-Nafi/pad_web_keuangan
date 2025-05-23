@@ -58,7 +58,7 @@
                         class="time-section {{ $days == '7' ? '' : 'hidden' }} h-1/2 flex gap-4 flex-wrap">
                         <!-- <h2>{{ $days }}</h2> -->
                         <a href="/transaksi" class="flex-1">
-                            <canvas class="size-[300px]" id="chart{{ $days }}"></canvas>
+                            <canvas id="chart{{ $days }}" width="500" height="500" class="w-[250px] h-[250px]"></canvas>
                         </a>
                         <div class="flex-1 overflow-auto">
                             <table id="table{{ $days }}"
@@ -404,7 +404,7 @@
                     const labels = data.map(item => item.store_name);
                     const incomeValues = data.map(item => item.total_income);
                     const percentage = data.map(item => item.percentage)
-                    const backgroundColors = colors.slice(0, data.length);
+                    const backgroundColors = colorStores.slice(0, data.length);
 
                     const ctx = document.getElementById('storeIncomesChart').getContext('2d');
                     new Chart(ctx, {
@@ -413,7 +413,7 @@
                             labels: labels,
                             datasets: [{
                                 data: percentage,
-                                backgroundColors: backgroundColors
+                                backgroundColor: colorStores.slice(0, data.length)
                             }]
                         },
                         options: {

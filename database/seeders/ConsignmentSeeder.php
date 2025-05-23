@@ -47,8 +47,7 @@ class ConsignmentSeeder extends Seeder
                     'entry_date' => $entryDate,
                     'exit_date' => $exitDate,
                     'stock' => $stock,
-                    'sold' => $sold,
-                    'price' => fake()->numberBetween(1000, 200000),
+                    'sold' => $sold,                    
                 ]);
             }
         }

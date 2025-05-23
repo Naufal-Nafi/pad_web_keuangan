@@ -89,7 +89,7 @@
                                 {{ 'Rp ' . number_format($consignment['price'], 2, ',', '.') }}
                             </td>
                             <td class="px-3 py-1">
-                                {{ $consignment['quantity'] }}
+                                {{ $consignment['stock'] }}
                             </td>
                             <td class="px-3 py-1">
                                 {{ $consignment['sold'] }}

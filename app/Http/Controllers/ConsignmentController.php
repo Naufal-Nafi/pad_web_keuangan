@@ -28,7 +28,7 @@ class ConsignmentController extends Controller
         // $consignments->transform(function ($consignment) {
         $consignments->getCollection()->transform(function ($consignment) {
             // $status = $consignment->entry_date ? 'Close' : 'Open';
-            if ($consignment->quantity - $consignment->sold == 0) {
+            if ($consignment->stock - $consignment->sold == 0) {
                 $status = 'Close';
             } else {
                 $status = 'Open';
@@ -37,7 +37,7 @@ class ConsignmentController extends Controller
             $circulationDuration = $consignment->entry_date && $consignment->exit_date
                 ? Carbon::parse($consignment->exit_date)->diffInDays(Carbon::parse($consignment->entry_date))
                 : null;
-            $totalPrice = $consignment->quantity * $consignment->product->price;
+            $totalPrice = $consignment->stock * $consignment->product->price;
 
             return [
                 'consignment_id' => $consignment->consignment_id,
@@ -49,43 +49,13 @@ class ConsignmentController extends Controller
                 'exit_date' => $consignment->exit_date,
                 'price' => $consignment->product->price,
                 'total_price' => $totalPrice,
-                'quantity' => $consignment->quantity,
+                'stock' => $consignment->stock,
                 'sold' => $consignment->sold,
             ];
         });
 
         return view('transaksi.transaksi', compact('consignments'));
-    }
-
-    // public function laporanIndex(Request $request)
-    // {
-    //     $perPage = $request->input('per_page', 10);
-    //     $consignments = Consignment::with('product', 'store')
-    //     ->paginate($perPage);
-    //     $consignments->getCollection()->transform(function ($consignment) {
-    //         $status = $consignment->entry_date ? 'Close' : 'Open';
-    //         $circulationDuration = $consignment->entry_date && $consignment->exit_date 
-    //             ? Carbon::parse($consignment->exit_date)->diffInDays(Carbon::parse($consignment->entry_date)) 
-    //             : null;
-    //         $totalPrice = $consignment->quantity * $consignment->product->price;
-
-    //         return [
-    //             'consignment_id' => $consignment->consignment_id,
-    //             'product_name' => $consignment->product->product_name,
-    //             'store_name' => $consignment->store->store_name,
-    //             'status' => $status,
-    //             'circulation_duration' => $circulationDuration,
-    //             'entry_date' => $consignment->entry_date,
-    //             'exit_date' => $consignment->exit_date,
-    //             'price' => $consignment->product->price,
-    //             'total_price' => $totalPrice,
-    //             'quantity' => $consignment->quantity,
-    //             'sold' => $consignment->sold,
-    //         ];
-    //     });
-
-    //     return view('transaksi.transaksi', compact('consignments'));
-    // }
+    }    
 
     //fungsi untuk menampilkan halaman edit consignment berdasarkan ID
     public function laporanEdit($consignment_id)
@@ -107,10 +77,11 @@ class ConsignmentController extends Controller
             'product_name' => 'required|string',
             'store_name' => 'required|string',
             'price' => 'required|integer',
-            'quantity' => 'required|integer',
+            'stock' => 'required|integer',
             'exit_date' => 'required|date',
         ]);
-
+        
+        // dd($request->price);
         $consignment = new Consignment();
 
         $product = Product::create(['product_name' => $request->product_name, 'price' => $request->price]);
@@ -118,7 +89,7 @@ class ConsignmentController extends Controller
 
         $consignment->product_id = $product->product_id;
         $consignment->store_id = $store->store_id;
-        $consignment->quantity = $request->quantity;
+        $consignment->stock = $request->stock;
         $consignment->exit_date = $request->exit_date;
         $consignment->user_id = Auth::id();
         $consignment->save();
@@ -129,7 +100,7 @@ class ConsignmentController extends Controller
     public function laporanUpdate(Request $request, $consignment_id)
     {
         $consignment = Consignment::with(['store', 'product'])->findOrFail($consignment_id);
-
+        // dd($request);
         $request->validate([
             'store_name' => 'required|string',
             'product_name' => 'required|string',
@@ -141,12 +112,12 @@ class ConsignmentController extends Controller
                 'integer',
                 'min:0',
                 function ($attribute, $value, $fail) use ($consignment) {
-                    if ($value > $consignment->quantity) {
+                    if ($value > $consignment->stock) {
                         $fail("Stock Tidak Sebanyak Yang Terjual");
                     }
                 },
             ],
-            'quantity' => 'required|integer',
+            'stock' => 'required|integer',
         ]);
 
         $consignment = Consignment::with(['store', 'product'])->find($consignment_id);
@@ -163,7 +134,7 @@ class ConsignmentController extends Controller
         $consignment->entry_date = $request->entry_date;
         $consignment->exit_date = $request->exit_date;
         $consignment->sold = $request->sold;
-        $consignment->quantity = $request->quantity;
+        $consignment->stock = $request->stock;
         $consignment->user_id = Auth::id();
         $consignment->save();
         return redirect('/transaksi');
@@ -226,7 +197,7 @@ class ConsignmentController extends Controller
                 return [
                     'store_name' => $consignment->store->store_name,
                     'product_name' => $consignment->product->product_name,
-                    'quantity' => $consignment->quantity,
+                    'stock' => $consignment->stock,
                 ];
             });
 
@@ -245,12 +216,12 @@ class ConsignmentController extends Controller
             'tanggal_masuk' => Carbon::parse($consignment->entry_date)->format('d/m/Y'),
             'tanggal_keluar' => Carbon::parse($consignment->exit_date)->format('d/m/Y'),
             'jumlah_awal' => $consignment->stock,
-            'harga_satuan' => $consignment->price,
-            'total_awal' => $consignment->stock * $consignment->price,
+            'harga_satuan' => $consignment->product->price,
+            'total_awal' => $consignment->stock * $consignment->product->price,
             'jumlah_kembali' => $consignment->stock - $consignment->sold,
-            'total_kembali' => ($consignment->stock - $consignment->sold) * $consignment->price,
+            'total_kembali' => ($consignment->stock - $consignment->sold) * $consignment->product->price,
             'jumlah_bayar' => $consignment->sold,
-            'total_bayar' => $consignment->sold * $consignment->price,
+            'total_bayar' => $consignment->sold * $consignment->product->price,
             'waktu_cetak' => now()->format('d/m/Y H:i:s')
         ];
 
@@ -259,6 +230,9 @@ class ConsignmentController extends Controller
         //     'total_price' => $consignment->sold * $consignment->product->price,
         //     'date_printed' => now()->format('d-m-Y'),
         // ]);
+        // dd($nota);
+        // return view('transaksi.nota', ['nota' => $nota]);
+
 
         $pdf = PDF::loadView('transaksi.nota', ['nota' => $nota]);
         return $pdf->download('nota-' . $consignment_id . '.pdf');

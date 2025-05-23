@@ -18,8 +18,7 @@ class Consignment extends Model
         'entry_date',
         'exit_date',
         'stock',
-        'sold',
-        'price',
+        'sold',        
     ];
 
     protected $dates = [
