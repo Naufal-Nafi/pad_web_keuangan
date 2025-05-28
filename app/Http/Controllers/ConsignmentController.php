@@ -22,7 +22,7 @@ class ConsignmentController extends Controller
 
         $consignments = Consignment::with('product', 'store')
             ->orderByRaw("(entry_date IS NULL) DESC")
-            ->orderBy('created_at', 'DESC')
+            ->orderBy('exit_date', 'DESC')
             ->paginate($perPage);
 
         // $consignments->transform(function ($consignment) {

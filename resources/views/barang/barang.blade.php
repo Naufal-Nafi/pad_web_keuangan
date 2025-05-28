@@ -3,7 +3,8 @@
 
 @section('content')
     <!-- tabel barang -->
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-52 my-24">
+    <div x-data="{ showModalExpense: false, deleteId: null }"
+        class="relative overflow-x-auto shadow-md sm:rounded-lg mx-52 my-24">
         <div class="flex items-center justify-between p-2" style="background:#EEF0F4">
             <!-- button tambah data barang -->
             <a href="{{ route('barang.create')}}" class="flex items-center group">
@@ -16,8 +17,7 @@
                         <path d="M12 16V8" stroke-width="1.5"></path>
                     </svg>
                 </button>
-                <p  class="text-blue-600 group-hover:underline px-2"
-                    style="font-weight:bold; font-size:13px">Tambah</p>
+                <p class="text-blue-600 group-hover:underline px-2" style="font-weight:bold; font-size:13px">Tambah</p>
             </a>
             <!-- button unduh informasi barang -->
             <a href="/barang/unduh">
@@ -73,12 +73,10 @@
                                     Edit
                                 </span>
                             </a>
-                            <form action="{{ route('barang.destroy', $expense->expense_id) }}" method="POST"
-                                onsubmit="return confirmDelete();" class="relative group">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 ml-1"
-                                    title="Delete">
+                            <!-- Tombol Delete -->
+                            <div class="relative group">
+                                <button @click="showModalExpense = true; deleteId = {{ $expense['expense_id'] }}"
+                                    class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                         <g fill="none">
                                             <path fill="#C50505" fill-rule="evenodd"
@@ -93,7 +91,7 @@
                                     class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
                                     Hapus
                                 </span>
-                            </form>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -121,6 +119,25 @@
             </form>
             <div class="mt-2 mr-2">
                 {{ $data_keluar->links('pagination::tailwind') }}
+            </div>
+        </div>
+        <!-- Modal Konfirmasi -->
+        <div x-show="showModalExpense" x-cloak
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+                <h2 class="text-lg font-semibold text-gray-800">Konfirmasi Hapus</h2>
+                <p class="mt-2 text-sm text-gray-600">Apakah Anda yakin ingin menghapus data ini?
+                </p>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button @click="showModalTransaction = false"
+                        class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">Batal</button>
+                    <form :action="'/barang/' + deleteId" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg hover:bg-red-800">Hapus</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

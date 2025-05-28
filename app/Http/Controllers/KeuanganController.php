@@ -25,6 +25,7 @@ class KeuanganController extends Controller
     // fungsi untuk mendapatkan data laporan harian (pemasukan dan pengeluaran) selama satu minggu
     public function getDailyReport()
     {
+        Carbon::setLocale('id');
         $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $endOfWeek = Carbon::now()->endOfWeek(Carbon::SUNDAY);
 
@@ -60,7 +61,7 @@ class KeuanganController extends Controller
                 : 0;
 
             $dataHarian[] = [
-                'label' => $date->format('l'),
+                'label' => $date->translatedFormat('l'),
                 'masuk' => $dailyIncome,
                 'keluar' => $dailyExpense,
             ];
@@ -97,7 +98,7 @@ class KeuanganController extends Controller
             ->get();
 
         $dataMingguan = [];
-        for ($week = 1; $week <= 5; $week++) {
+        for ($week = 1; $week <= 4; $week++) {
             $income = $incomes->get($week, 0);
             $expense = $expenses->firstWhere('week', $week);
 
@@ -191,7 +192,7 @@ class KeuanganController extends Controller
             $expense = $expenses->firstWhere('month', $month);
 
             $dataBulanan[] = [
-                'label' => Carbon::create()->month($month)->format('F'),
+                'label' => Carbon::create()->month($month)->format('M'),
                 'masuk' => $income,
                 'keluar' => $expense ? $expense->total_expense : 0,
             ];

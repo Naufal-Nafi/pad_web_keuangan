@@ -2,7 +2,7 @@
 @section('title laporan', 'Transaksi')
 
 @section('content')
-    <section class="p-10">
+    <section x-data="{ showModalTransaction: false, deleteId: null }" class="p-10">
         <!-- line chart -->
         <!-- <div class="mx-auto drop-shadow-lg"><canvas id="dailyReportChart"></canvas></div> -->
 
@@ -113,11 +113,8 @@
                                 </a>
 
                                 <!-- Tombol Delete -->
-                                <form action="{{ route('laporan.destroy', $consignment['consignment_id']) }}" method="POST"
-                                    onsubmit="return confirmDelete();" class="relative group">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
+                                <div class="relative group">
+                                    <button @click="showModalTransaction = true; deleteId = {{ $consignment['consignment_id'] }}"
                                         class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                             <g fill="none">
@@ -133,7 +130,8 @@
                                         class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
                                         Hapus
                                     </span>
-                                </form>
+                                </div>
+
 
                                 <!-- Tombol Print -->
                                 <a href="{{ route('laporan.print', $consignment['consignment_id']) }}"
@@ -183,51 +181,27 @@
                 </div>
             </div>
         </div>
+        <!-- Modal Konfirmasi -->
+        <div x-show="showModalTransaction" x-cloak
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+                <h2 class="text-lg font-semibold text-gray-800">Konfirmasi Hapus</h2>
+                <p class="mt-2 text-sm text-gray-600">Apakah Anda yakin ingin menghapus data ini?
+                </p>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button @click="showModalTransaction = false"
+                        class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">Batal</button>
+                    <form :action="'/transaksi/' + deleteId" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg hover:bg-red-800">Hapus</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('dailyReportChart').getContext('2d');
-            fetch('/dashboard/daily-report')
-                .then(response => response.json())
-                .then(data => {
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: data.map(row => ` ${row.day}`),
-                            datasets: [{
-                                label: 'Masuk',
-                                data: data.map(row => row.masuk),
-                                borderColor: '#20BB14',
-                                fill: false,
-                            },
-                            {
-                                label: 'Keluar',
-                                data: data.map(row => row.keluar),
-                                borderColor: '#E21F03',
-                                fill: false,
-                            },
-                            ],
-                        },
-                        options: {
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            },
-                            animation: {
-                                duration: 1000,
-                                easing: 'easeOutBounce'
-                            },
-                            hover: {
-                                animationDuration: 500
-                            }
-                        },
-                    });
-                })
-                .catch(error => console.error('Error loading data:', error));
-        });
-    </script> -->
 
     <script>
         function confirmDelete() {
