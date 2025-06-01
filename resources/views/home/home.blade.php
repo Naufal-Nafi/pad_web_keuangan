@@ -38,7 +38,14 @@
                 </div>
             </div>
 
-            <div class="my-12">
+            <div class="flex gap-2">
+                <button id="toggleGross" class="toggle-chart px-4 py-2 bg-blue-600 text-white rounded">Tampilkan Pendapatan
+                    Kotor</button>
+                <button id="toggleStore" class="toggle-chart px-4 py-2 bg-gray-200 text-gray-800 rounded">Tampilkan Per
+                    Toko</button>
+            </div>
+
+            <div id="grossIncomeSection" class="my-12 min-h-[400px]">
                 <div class="flex gap-2 justify-between mb-4">
                     <h6 class="ms-4 font-bold">Pie chart Pendapatan kotor</h6>
                     <div>
@@ -56,47 +63,29 @@
                 @foreach (['7' => 'section7', '14' => 'section14', '30' => 'section30', '365' => 'section365'] as $days => $sectionId)
                     <div id="{{ $sectionId }}"
                         class="time-section {{ $days == '7' ? '' : 'hidden' }} h-1/2 flex gap-4 flex-wrap">
-                        <!-- <h2>{{ $days }}</h2> -->
-                        <a href="/transaksi" class="flex-1">
-                            <canvas id="chart{{ $days }}" width="500" height="500" class="w-[250px] h-[250px]"></canvas>
+                        <a href="/transaksi">
+                            <canvas id="chart{{ $days }}" class="size-[250px]"></canvas>
                         </a>
-                        <div class="flex-1 overflow-auto">
-                            <table id="table{{ $days }}"
-                                class="min-w-full divide-y divide-gray-200 border rounded-lg text-sm text-left">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-4 py-2 font-medium">Produk</th>
-                                        <th class="px-4 py-2 font-medium">Income</th>
-                                        <th class="px-4 py-2 font-medium">Persentase</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="flex-1 overflow-x-auto">
+                            <div id="tableContainer{{ $days }}" class="flex gap-4"></div>
                         </div>
                     </div>
                 @endforeach
+
             </div>
-            <div class="block gap-2">
+            <div id="storeIncomeSection" class="block gap-2 my-12 min-h-[350px]">
                 <h6 class="ms-4 mb-4 font-bold">Pie chart Per Toko</h6>
                 <div class="flex gap-4 flex-wrap">
-                    <div class="flex-1">
-                        <canvas id="storeIncomesChart"></canvas>
+                    <div>
+                        <canvas id="storeIncomesChart" class="size-[250px]"></canvas>
                     </div>
-                    <div class="flex-1 overflow-auto">
-                        <table class="divide-y divide-gray-200 border rounded-lg text-sm text-left">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-4 py-2 font-medium">Store Name</th>
-                                    <th class="px-4 py-2 font-medium">Total Income</th>
-                                    <th class="px-4 py-2 font-medium">Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody id="incomeTableBody">
-                                <!-- Table rows will be populated via JavaScript -->
-                            </tbody>
-                        </table>
+                    <div class="flex-1 overflow-x-auto">
+                        <div id="storeTableContainer" class="flex gap-4">
+                            <!-- Tabel-tabel akan di-generate di sini -->
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
         <div class="w-3/5 flex flex-col min-h-screen ">
@@ -283,6 +272,36 @@
     </script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnGross = document.getElementById('toggleGross');
+            const btnStore = document.getElementById('toggleStore');
+            const grossSection = document.getElementById('grossIncomeSection');
+            const storeSection = document.getElementById('storeIncomeSection');
+
+            btnGross.addEventListener('click', () => {
+                grossSection.classList.remove('hidden');
+                storeSection.classList.add('hidden');
+
+                btnGross.classList.remove('bg-gray-200', 'text-gray-800');
+                btnGross.classList.add('bg-blue-600', 'text-white');
+                btnStore.classList.remove('bg-blue-600', 'text-white');
+                btnStore.classList.add('bg-gray-200', 'text-gray-800');
+            });
+
+            btnStore.addEventListener('click', () => {
+                storeSection.classList.remove('hidden');
+                grossSection.classList.add('hidden');
+
+                btnStore.classList.remove('bg-gray-200', 'text-gray-800');
+                btnStore.classList.add('bg-blue-600', 'text-white');
+                btnGross.classList.remove('bg-blue-600', 'text-white');
+                btnGross.classList.add('bg-gray-200', 'text-gray-800');
+            });
+        });
+    </script>
+
+
+    <script>
         function generateColors(count) {
             const colors = [];
             for (let i = 0; i < count; i++) {
@@ -294,16 +313,61 @@
     </script>
 
     <script>
-        
-
         const timeFrames = [
-            { days: 7, chartId: 'chart7', tableId: 'table7', rendered: false },
-            { days: 14, chartId: 'chart14', tableId: 'table14', rendered: false },
-            { days: 30, chartId: 'chart30', tableId: 'table30', rendered: false },
-            { days: 365, chartId: 'chart365', tableId: 'table365', rendered: false }
+            { days: 7, chartId: 'chart7', tableContainerId: 'tableContainer7', rendered: false },
+            { days: 14, chartId: 'chart14', tableContainerId: 'tableContainer14', rendered: false },
+            { days: 30, chartId: 'chart30', tableContainerId: 'tableContainer30', rendered: false },
+            { days: 365, chartId: 'chart365', tableContainerId: 'tableContainer365', rendered: false }
         ];
 
+        function chunkArray(array, size) {
+            const chunks = [];
+            for (let i = 0; i < array.length; i += size) {
+                chunks.push(array.slice(i, i + size));
+            }
+            return chunks;
+        }
 
+        function renderPaginatedTables(data, colors, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const chunks = chunkArray(data, 5);
+
+            chunks.forEach((chunk, chunkIndex) => {
+                const table = document.createElement('table');
+                table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
+                table.innerHTML = `
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-2 font-medium">Produk</th>
+                                            <th class="px-4 py-2 font-medium">Income</th>
+                                            <th class="px-4 py-2 font-medium">Persentase</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                `;
+
+                const tbody = table.querySelector('tbody');
+                chunk.forEach((item, i) => {
+                    const colorIndex = chunkIndex * 5 + i;
+                    const color = colors[colorIndex] || '#ccc';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                                        <td class="px-4 py-2 text-gray-800">
+                                            <span style="display:inline-block;width:15px;height:15px;background:${color};border-radius:3px;"></span>
+                                            ${item.label}
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                    `;
+                    tbody.appendChild(row);
+                });
+
+                container.appendChild(table);
+            });
+        }
 
         function renderChart(frame) {
             fetch(`/api/dashboard/income-percentage/${frame.days}`)
@@ -312,7 +376,6 @@
                     const colors = generateColors(data.length);
                     const labels = data.map(item => item.label);
                     const percentages = data.map(item => item.percentage);
-                    const incomes = data.map(item => item.income);
 
                     const ctx = document.getElementById(frame.chartId).getContext('2d');
                     new Chart(ctx, {
@@ -322,7 +385,7 @@
                             datasets: [{
                                 label: 'Persentase Income',
                                 data: percentages,
-                                backgroundColor: colors.slice(0, data.length),
+                                backgroundColor: colors,
                                 borderWidth: 1
                             }]
                         },
@@ -330,9 +393,7 @@
                             responsive: true,
                             rotation: 270,
                             plugins: {
-                                legend: {
-                                    display: false
-                                },
+                                legend: { display: false },
                                 tooltip: {
                                     callbacks: {
                                         label: function (context) {
@@ -344,27 +405,12 @@
                         }
                     });
 
-                    // Table
-                    const tbody = document.querySelector(`#${frame.tableId} tbody`);
-                    tbody.innerHTML = ''; // Bersihkan sebelumnya
-                    data.forEach((item, index) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                                                                                    <td class="px-4 py-2 text-gray-800">
-                                                                                        <span style="display:inline-block;width:15px;height:15px;background:${colors[index]};border-radius:3px;"></span> 
-                                                                                        ${item.label}
-                                                                                    </td>
-                                                                                    <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                                                                    <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                                                `;
-                        tbody.appendChild(row);
-                    });
-
+                    renderPaginatedTables(data, colors, frame.tableContainerId);
                     frame.rendered = true;
                 });
         }
-
     </script>
+
 
     <script>
         // Tombol filter
@@ -400,34 +446,30 @@
     </script>
 
     <script>
-        
         document.addEventListener('DOMContentLoaded', () => {
             fetch('/api/dashboard/store-income-percentage')
                 .then(response => response.json())
                 .then(data => {
-                    const colorStores = generateColors(data.length);
+                    const colors = generateColors(data.length);
                     const labels = data.map(item => item.store_name);
-                    const incomeValues = data.map(item => item.total_income);
-                    const percentage = data.map(item => item.percentage)
-                    const backgroundColors = colorStores.slice(0, data.length);
+                    const percentages = data.map(item => item.percentage);
 
+                    // Render Chart
                     const ctx = document.getElementById('storeIncomesChart').getContext('2d');
                     new Chart(ctx, {
                         type: 'pie',
                         data: {
                             labels: labels,
                             datasets: [{
-                                data: percentage,
-                                backgroundColor: colorStores.slice(0, data.length)
+                                data: percentages,
+                                backgroundColor: colors
                             }]
                         },
                         options: {
                             responsive: true,
                             rotation: 270,
                             plugins: {
-                                legend: {
-                                    display: false
-                                },
+                                legend: { display: false },
                                 tooltip: {
                                     callbacks: {
                                         label: function (context) {
@@ -438,20 +480,50 @@
                                 }
                             }
                         }
-                    })
-                    // Isi Tabel
-                    const tbody = document.getElementById('incomeTableBody');
-                    data.forEach((item, index) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `                    
-                                                                <td class="px-4 py-2 text-gray-800"><span style="display:inline-block;width:15px;height:15px;background:${colorStores[index]};border-radius:3px;margin-right:2px;"></span>${item.store_name}</td>
-                                                                <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
-                                                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                            `;
-                        tbody.appendChild(row);
                     });
-                })
-        });
 
+                    // Generate paginated tables (5 per table)
+                    const container = document.getElementById('storeTableContainer');
+                    container.innerHTML = ''; // bersihkan kontainer
+
+                    const chunkSize = 5;
+                    const chunks = [];
+                    for (let i = 0; i < data.length; i += chunkSize) {
+                        chunks.push(data.slice(i, i + chunkSize));
+                    }
+
+                    chunks.forEach((chunk, chunkIndex) => {
+                        const table = document.createElement('table');
+                        table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
+                        table.innerHTML = `
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-2 font-medium">Store Name</th>
+                                            <th class="px-4 py-2 font-medium">Total Income</th>
+                                            <th class="px-4 py-2 font-medium">Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                `;
+
+                        const tbody = table.querySelector('tbody');
+                        chunk.forEach((item, i) => {
+                            const colorIndex = chunkIndex * chunkSize + i;
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                        <td class="px-4 py-2 text-gray-800">
+                                            <span style="display:inline-block;width:15px;height:15px;background:${colors[colorIndex]};border-radius:3px;margin-right:4px;"></span>
+                                            ${item.store_name}
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
+                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                    `;
+                            tbody.appendChild(row);
+                        });
+
+                        container.appendChild(table);
+                    });
+                });
+        });
     </script>
 @endsection

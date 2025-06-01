@@ -15,6 +15,7 @@ class Consignment extends Model
         'product_id',
         'store_id',
         'user_id',
+        'creator_name',
         'entry_date',
         'exit_date',
         'stock',
