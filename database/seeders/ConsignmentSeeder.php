@@ -30,11 +30,11 @@ class ConsignmentSeeder extends Seeder
 
         foreach ($timeFrames as $frame) {
             for ($i = 0; $i < $frame['count']; $i++) {
-                $entryDate = fake()->dateTimeBetween($frame['start'], 'now');
+                $exitDate = fake()->dateTimeBetween($frame['start'], 'now');
                 
                 // exit date 10-40 days after entry
-                $exitDate = clone $entryDate;
-                $exitDate->modify('+' . fake()->numberBetween(10, 40) . ' days');
+                $entryDate = clone $exitDate;
+                $entryDate->modify('+' . fake()->numberBetween(10, 40) . ' days');
 
                 // stock > sold
                 $stock = fake()->numberBetween(30, 100);
@@ -47,8 +47,7 @@ class ConsignmentSeeder extends Seeder
                     'entry_date' => $entryDate,
                     'exit_date' => $exitDate,
                     'stock' => $stock,
-                    'sold' => $sold,
-                    'price' => fake()->numberBetween(1000, 200000),
+                    'sold' => $sold,                    
                 ]);
             }
         }

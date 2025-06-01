@@ -25,6 +25,7 @@ class KeuanganController extends Controller
     // fungsi untuk mendapatkan data laporan harian (pemasukan dan pengeluaran) selama satu minggu
     public function getDailyReport()
     {
+        Carbon::setLocale('id');
         $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $endOfWeek = Carbon::now()->endOfWeek(Carbon::SUNDAY);
 
@@ -60,7 +61,7 @@ class KeuanganController extends Controller
                 : 0;
 
             $dataHarian[] = [
-                'label' => $date->format('l'),
+                'label' => $date->translatedFormat('l'),
                 'masuk' => $dailyIncome,
                 'keluar' => $dailyExpense,
             ];
@@ -97,7 +98,7 @@ class KeuanganController extends Controller
             ->get();
 
         $dataMingguan = [];
-        for ($week = 1; $week <= 5; $week++) {
+        for ($week = 1; $week <= 4; $week++) {
             $income = $incomes->get($week, 0);
             $expense = $expenses->firstWhere('week', $week);
 
@@ -191,7 +192,7 @@ class KeuanganController extends Controller
             $expense = $expenses->firstWhere('month', $month);
 
             $dataBulanan[] = [
-                'label' => Carbon::create()->month($month)->format('F'),
+                'label' => Carbon::create()->month($month)->format('M'),
                 'masuk' => $income,
                 'keluar' => $expense ? $expense->total_expense : 0,
             ];
@@ -319,27 +320,33 @@ class KeuanganController extends Controller
 
     public function storeIncomes()
     {
-        // Ambil total income per store
-        $stores = Store::with([
-            'consignments' => function ($query) {
-                $query->select('store_id', DB::raw('SUM(sold * price) as total_income'))->groupBy('store_id');
-            }
-        ])->get();
+        // Ambil total income per store (dari sold * product->price)
+        $stores = Store::with(['consignments.product'])->get();
+
+        // Hitung income tiap store dan bentuk ulang data
+        $stores = $stores->map(function ($store) {
+            $totalIncome = $store->consignments->sum(function ($consignment) {
+                return $consignment->sold * ($consignment->product->price ?? 0);
+            });
+
+            return [
+                'store_id' => $store->store_id,
+                'store_name' => $store->store_name,
+                'total_income' => $totalIncome,
+            ];
+        });
 
         // Hitung total income dari semua toko
-        $totalIncome = 0;
-        foreach ($stores as $store) {
-            $totalIncome += $store->consignments->first()->total_income ?? 0;
-        }
+        $totalIncome = $stores->sum('total_income');
 
-        // Format hasil
+        // Format hasil dengan persentase
         $result = $stores
             ->map(function ($store) use ($totalIncome) {
-                $income = $store->consignments->first()->total_income ?? 0;
+                $income = $store['total_income'];
                 $percentage = $totalIncome > 0 ? ($income / $totalIncome) * 100 : 0;
 
                 return [
-                    'store_name' => $store->store_name,
+                    'store_name' => $store['store_name'],
                     'total_income' => (float) $income,
                     'percentage' => round($percentage, 2),
                 ];
@@ -349,5 +356,6 @@ class KeuanganController extends Controller
 
         return response()->json($result);
     }
+
 
 }

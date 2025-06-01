@@ -16,8 +16,7 @@ class ProductSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             Product::create([
                 'product_name' => fake()->sentence(1),
-                'price' => fake()->numberBetween(3000, 50000),
-                'stock' => fake()->numberBetween(1, 100)
+                'price' => fake()->numberBetween(3000, 50000),                
             ]);
         }
     }

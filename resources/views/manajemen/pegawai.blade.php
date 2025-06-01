@@ -2,7 +2,7 @@
 @section('title laporan', 'Manajemen Pegawai')
 
 @section('content')
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-28 my-10">
+    <div x-data="{ showModalUser: false, deleteId: null }" class="relative overflow-x-auto shadow-md sm:rounded-lg mx-28 my-10">
         <div class="flex items-center justify-between" style="background:#EEF0F4">
             <!-- tambah pegawai -->
             <a href="{{ route('pegawai.create')}}" class="flex items-center group">
@@ -15,8 +15,7 @@
                         <path d="M12 16V8" stroke-width="1.5"></path>
                     </svg>
                 </button>
-                <p  class="text-blue-600 group-hover:underline px-2"
-                    style="font-weight:bold; font-size:13px">Tambah</p>
+                <p class="text-blue-600 group-hover:underline px-2" style="font-weight:bold; font-size:13px">Tambah</p>
             </a>
             <!-- search pegawai -->
             <div class="relative">
@@ -89,19 +88,17 @@
                                     Edit
                                 </span>
                             </a>
-                            <form action="{{ route('pegawai.destroy', $user->user_id) }}" method="POST"
-                                onsubmit="return confirmDelete();" class="relative group">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 ml-1"
-                                    title="Delete">
+                            <!-- Tombol Delete -->
+                            <div class="relative group">
+                                <button @click="showModalUser = true; deleteId = {{ $user['user_id'] }}"
+                                    class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                         <g fill="none">
                                             <path fill="#C50505" fill-rule="evenodd"
-                                                d="M21 3H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C3.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
+                                                d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
                                                 clip-rule="evenodd" />
                                             <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
-                                                d="M10.038 3.37c.114-.103.335-.2.715-.237A3.7 3.7 0 0 1 12 3c.44 0 .838.033 1.217.103s.3.131.715.238" />
+                                                d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
                                         </g>
                                     </svg>
                                 </button>
@@ -109,7 +106,7 @@
                                     class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
                                     Hapus
                                 </span>
-                            </form>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -137,6 +134,25 @@
             </form>
             <div class="mt-2 mr-2">
                 {{ $data_user->links('pagination::tailwind') }}
+            </div>
+        </div>
+        <!-- Modal Konfirmasi -->
+        <div x-show="showModalUser" x-cloak
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+                <h2 class="text-lg font-semibold text-gray-800">Konfirmasi Hapus</h2>
+                <p class="mt-2 text-sm text-gray-600">Apakah Anda yakin ingin menghapus data ini?
+                </p>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button @click="showModalTransaction = false"
+                        class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">Batal</button>
+                    <form :action="'/pegawai/' + deleteId" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-semibold text-white bg-red-700 rounded-lg hover:bg-red-800">Hapus</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

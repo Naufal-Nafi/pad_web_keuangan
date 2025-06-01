@@ -9,21 +9,23 @@ use PDF;
 class ExpenseController extends Controller
 {
 
-// fungsi untuk menampilkan daftar pengeluaran dengan pagination
+    // fungsi untuk menampilkan daftar pengeluaran dengan pagination
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-        $data_keluar = Expense::with('user')->paginate($perPage);;
+        $data_keluar = Expense::with('user')
+            ->orderBy('date', 'desc')
+            ->paginate($perPage);
         return view('barang.barang', compact('data_keluar', 'perPage'));
     }
 
-// fungsi untuk menampilkan form untuk membuat pengeluaran
+    // fungsi untuk menampilkan form untuk membuat pengeluaran
     public function create()
     {
         return view('barang.create');
     }
 
-// fungsi untuk menyimpan data pengeluaran ke database
+    // fungsi untuk menyimpan data pengeluaran ke database
     public function store(Request $request)
     {
         $request->validate([
@@ -41,14 +43,14 @@ class ExpenseController extends Controller
         return redirect('/barang')->with('success', 'Expense created successfully');
     }
 
-// fungsi untuk menampilkan form untuk mengedit data pengeluaran berdasarkan id
+    // fungsi untuk menampilkan form untuk mengedit data pengeluaran berdasarkan id
     public function edit($expense_id)
     {
         $expense = Expense::findOrFail($expense_id);
         return view('barang.edit', compact('expense'));
     }
 
-// fungsi untuk memperbarui data pengeluaran berdasarkan id di database
+    // fungsi untuk memperbarui data pengeluaran berdasarkan id di database
     public function update(Request $request, $expense_id)
     {
         $request->validate([
@@ -68,7 +70,7 @@ class ExpenseController extends Controller
     }
 
 
-// fungsi untuk menghapus data pengeluaran berdasarkan id dari database
+    // fungsi untuk menghapus data pengeluaran berdasarkan id dari database
     public function destroy($expense_id)
     {
         $expense = Expense::findOrFail($expense_id);
@@ -77,13 +79,13 @@ class ExpenseController extends Controller
         return redirect('/barang');
     }
 
-// fungsi untuk menampilkan tampilan form untuk menetapkan rentang tanggal data pengeluaran 
+    // fungsi untuk menampilkan tampilan form untuk menetapkan rentang tanggal data pengeluaran 
     public function pageunduh()
     {
         return view('barang.unduh');
     }
 
-// fungsi untuk mengunduh laporan pengeluaran dalam format PDF berdasarkan rentang tanggal
+    // fungsi untuk mengunduh laporan pengeluaran dalam format PDF berdasarkan rentang tanggal
     public function download(Request $request)
     {
         $request->validate([
