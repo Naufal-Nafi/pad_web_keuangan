@@ -99,7 +99,7 @@
     <div class="content">
         <div class="info">
             <p><strong>Diterbitkan atas nama</strong><br>
-                {{ $nota['nama_pelanggan'] }}</p>
+                {{ $nota['nama_pencetak'] }}</p>
 
             <p style="float: right; text-align: right;">
                 Nama Toko : <strong>{{ $nota['toko'] }}</strong><br>
@@ -120,7 +120,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="text-blue">Roti</td>
+                    <td class="text-blue">{{ $nota['nama_produk'] }}</td>
                     <td>{{ $nota['jumlah_awal'] }}</td>
                     <td>Rp. {{ number_format($nota['harga_satuan'], 0, ',', '.') }}</td>
                     <td>Rp. {{ number_format($nota['total_awal'], 0, ',', '.') }}</td>

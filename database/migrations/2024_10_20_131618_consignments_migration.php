@@ -12,8 +12,12 @@ return new class extends Migration
             $table->id('consignment_id');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('product_id')->on('products');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('user_id')->on('users');
+            $table->unsignedBigInteger('user_id')
+                    ->foreign('user_id')
+                    ->references('user_id')
+                    ->on('users')
+                    ->onDelete('set null');
+            $table->string('creator_name'); 
             $table->unsignedBigInteger('store_id');
             $table->foreign('store_id')->references('store_id')->on('stores');
 

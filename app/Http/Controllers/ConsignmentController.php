@@ -92,6 +92,7 @@ class ConsignmentController extends Controller
         $consignment->stock = $request->stock;
         $consignment->exit_date = $request->exit_date;
         $consignment->user_id = Auth::id();
+        $consignment->creator_name = Auth::user()->name;
         $consignment->save();
         return redirect('/transaksi');
     }
@@ -211,12 +212,13 @@ class ConsignmentController extends Controller
 
         $nota = [
             'nomor' => 'TRX-' . $consignment_id,
-            'nama_pelanggan' => $consignment->user->name,
+            'nama_pencetak' => Auth::user()->name,
             'toko' => $consignment->store->store_name,
             'tanggal_masuk' => Carbon::parse($consignment->entry_date)->format('d/m/Y'),
             'tanggal_keluar' => Carbon::parse($consignment->exit_date)->format('d/m/Y'),
             'jumlah_awal' => $consignment->stock,
             'harga_satuan' => $consignment->product->price,
+            'nama_produk' => $consignment->product->product_name,
             'total_awal' => $consignment->stock * $consignment->product->price,
             'jumlah_kembali' => $consignment->stock - $consignment->sold,
             'total_kembali' => ($consignment->stock - $consignment->sold) * $consignment->product->price,
