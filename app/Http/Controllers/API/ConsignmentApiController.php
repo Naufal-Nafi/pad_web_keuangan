@@ -4,12 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
-use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Validator;
 
 class ConsignmentApiController extends Controller
@@ -23,13 +23,13 @@ class ConsignmentApiController extends Controller
         $consignments = Consignment::with(['product', 'store', 'user'])
             ->orderByRaw("(entry_date IS NULL) DESC")
             ->orderBy('exit_date', 'DESC')
-            ->get()
-            ->map(function ($consignment) {
+            ->paginate(10)
+            ->through(function ($consignment) {
                 $status = ($consignment->stock - $consignment->sold == 0) ? 'Close' : 'Open';
 
                 $circulationDuration = ($consignment->entry_date && $consignment->exit_date)
                     ? Carbon::parse($consignment->exit_date)->diffInDays(Carbon::parse($consignment->entry_date))
-                    : null;                
+                    : null;
 
                 return [
                     'consignment_id' => $consignment->consignment_id,
@@ -41,7 +41,7 @@ class ConsignmentApiController extends Controller
                     'circulation_duration' => $circulationDuration,
                     'stock' => $consignment->stock,
                     'sold' => $consignment->sold,
-                    'price' => $consignment->product->price,                    
+                    'price' => $consignment->product->price,
                     'total_price' => $consignment->stock * $consignment->product->price,
                 ];
             });
@@ -79,7 +79,7 @@ class ConsignmentApiController extends Controller
                 'exit_date' => $consignment->exit_date,
                 'stock' => $consignment->stock,
                 'sold' => $consignment->sold,
-                'price' => $consignment->price,
+                'price' => $consignment->product->price,
                 'total_price' => $consignment->stock * $consignment->price,
             ]
         ], 200);
@@ -117,7 +117,8 @@ class ConsignmentApiController extends Controller
         $consignment = Consignment::create([
             'product_id' => $product->product_id,
             'store_id' => $store->store_id,
-            'user_id' => Auth()->id(),
+            'user_id' => Auth::id(),
+            'creator_name' => Auth::user()->name,
             'stock' => $request->stock,
             'exit_date' => $request->exit_date,
             'price' => $request->price,
@@ -184,16 +185,21 @@ class ConsignmentApiController extends Controller
             ['price' => $request->price, 'stock' => 0]
         );
 
-        $consignment->update([
-            'product_id' => $product->product_id,
-            'store_id' => $store->store_id,
-            'exit_date' => $request['exit_date'],
-            'entry_date' => $request['entry_date'],
-            'stock' => $request['stock'],
-            'sold' => $request['sold'],
+        $consignment->store->update(['store_name' => $request->store_name]);
+        $consignment->product->update([
+            'product_name' => $request->product_name,
             'price' => $request->price,
+        ]);
+
+
+        $consignment->update([
+            'exit_date' => $request->exit_date,
+            'entry_date' => $request->entry_date,
+            'stock' => $request->stock,
+            'sold' => $request->sold,
             'user_id' => auth()->id(),
         ]);
+
 
         return response()->json([
             'status' => 'success',
