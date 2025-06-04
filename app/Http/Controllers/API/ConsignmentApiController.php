@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Product;
 use App\Models\Store;
+use Illuminate\Support\Carbon;
 use Validator;
 
 class ConsignmentApiController extends Controller
@@ -18,18 +19,30 @@ class ConsignmentApiController extends Controller
      */
     public function index()
     {
-        $consignments = Consignment::with(['product', 'store', 'user'])->get()
+
+        $consignments = Consignment::with(['product', 'store', 'user'])
+            ->orderByRaw("(entry_date IS NULL) DESC")
+            ->orderBy('exit_date', 'DESC')
+            ->get()
             ->map(function ($consignment) {
+                $status = ($consignment->stock - $consignment->sold == 0) ? 'Close' : 'Open';
+
+                $circulationDuration = ($consignment->entry_date && $consignment->exit_date)
+                    ? Carbon::parse($consignment->exit_date)->diffInDays(Carbon::parse($consignment->entry_date))
+                    : null;                
+
                 return [
                     'consignment_id' => $consignment->consignment_id,
                     'product_name' => $consignment->product->product_name,
                     'store_name' => $consignment->store->store_name,
                     'entry_date' => $consignment->entry_date,
                     'exit_date' => $consignment->exit_date,
-                    'stock' => $consignment->stock, 
+                    'status' => $status,
+                    'circulation_duration' => $circulationDuration,
+                    'stock' => $consignment->stock,
                     'sold' => $consignment->sold,
-                    'price' => $consignment->price, 
-                    'total_price' => $consignment->stock * $consignment->price,
+                    'price' => $consignment->product->price,                    
+                    'total_price' => $consignment->stock * $consignment->product->price,
                 ];
             });
 
@@ -39,7 +52,7 @@ class ConsignmentApiController extends Controller
             'data' => $consignments
         ], 200);
     }
-    
+
     /**
      * Display the specified consignment.
      */
@@ -47,7 +60,7 @@ class ConsignmentApiController extends Controller
     {
         $consignment = Consignment::with(['product', 'store', 'user'])
             ->findOrFail($consignment_id);
-    
+
         if (!$consignment) {
             return response()->json([
                 'status' => 'error',
@@ -138,7 +151,7 @@ class ConsignmentApiController extends Controller
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'product_name' => 'required|string|max:255',
             'store_name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
@@ -195,21 +208,21 @@ class ConsignmentApiController extends Controller
     public function destroy($consignment_id)
     {
         $consignment = Consignment::find($consignment_id);
-        
+
         if (!$consignment) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Consignment not found',
             ], Response::HTTP_NOT_FOUND);
         }
-        
+
         if ($consignment->user_id !== Auth::id() && Auth::user()->role !== 'owner') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized',
             ], Response::HTTP_FORBIDDEN);
         }
-        
+
         $consignment->delete();
 
         return response()->json([
