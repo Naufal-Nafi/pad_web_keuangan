@@ -4,13 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
-use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Support\Carbon;
-use Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ConsignmentApiController extends Controller
 {
@@ -95,7 +95,18 @@ class ConsignmentApiController extends Controller
             'store_name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'exit_date' => 'required|date'
+            'exit_date' => 'required|date',
+        //     'entry_date' => 'nullable|date|after_or_equal:exit_date',
+        //     'sold' => [
+        //         'nullable',
+        //         'integer',
+        //         'min:0',
+        //         function ($attribute, $value, $fail) use ($request) {
+        //             if ($value > $request->stock) {
+        //                 $fail("Terjual lebih banyak dari stok yang tersedia.");
+        //             }
+        //         },
+        //     ],
         ]);
 
         if ($validator->fails()) {
@@ -117,7 +128,8 @@ class ConsignmentApiController extends Controller
         $consignment = Consignment::create([
             'product_id' => $product->product_id,
             'store_id' => $store->store_id,
-            'user_id' => Auth()->id(),
+            'user_id' => Auth::id(),
+            'creator_name' => Auth::user()->name,
             'stock' => $request->stock,
             'exit_date' => $request->exit_date,
             'price' => $request->price,
@@ -192,7 +204,7 @@ class ConsignmentApiController extends Controller
             'stock' => $request['stock'],
             'sold' => $request['sold'],
             'price' => $request->price,
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
         ]);
 
         return response()->json([
