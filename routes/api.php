@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\API\ConsignmentApiController;
+use App\Http\Controllers\ConsignmentController;
 
 
 // Public routes
@@ -21,7 +22,7 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/daily-report', [KeuanganController::class, 'getDailyReport']);
     Route::get('/fortnightly-report', [KeuanganController::class, 'getFortnightlyReport']);
     Route::get('/weekly-report', [KeuanganController::class, 'getWeeklyReport']);
-    Route::get('/monthly-report', [KeuanganController::class, 'getMonthlyReport']);       
+    Route::get('/monthly-report', [KeuanganController::class, 'getMonthlyReport']);
     Route::get('/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
 });
 
@@ -30,16 +31,40 @@ Route::get('/consignments', [ConsignmentApiController::class, 'index']);
 Route::get('/consignments/{consignment_id}', [ConsignmentApiController::class, 'show']);
 
 
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // Protected consignment routes
+    Route::post('/logout',[AuthApiController::class, 'logout']);
+
+    // CONSIGNMENT routes
     Route::prefix('consignments')->group(function () {
+        Route::get('/', [ConsignmentApiController::class, 'laporanIndex']);
         Route::post('/', [ConsignmentApiController::class, 'store']);
+        Route::get('/{consignment_id}', [ConsignmentApiController::class, 'show']);
         Route::put('/{consignment_id}', [ConsignmentApiController::class, 'update']);
         Route::delete('/{consignment_id}', [ConsignmentApiController::class, 'destroy']);
     });
+
+    // DASHBOARD ROUTES    
+    Route::prefix('dashboard')->group(function () {
+        // TODO ini belum dibuat pada controller !!!
+        Route::get('/', [ConsignmentController::class, 'mainpageIndex']);
+        Route::get('/search', [ConsignmentApiController::class, 'mainpageSearch']);
+
+        Route::get('/income-percentage/7', [KeuanganController::class, 'getIncomePercentageLast7Days']);
+        Route::get('/income-percentage/14', [KeuanganController::class, 'getIncomePercentageLast14Days']);
+        Route::get('/income-percentage/30', [KeuanganController::class, 'getIncomePercentageLast30Days']);
+        Route::get('/income-percentage/365', [KeuanganController::class, 'getIncomePercentageLast12Months']);
+
+        Route::get('/daily-report', [KeuanganController::class, 'getDailyReport']);
+        Route::get('/fortnightly-report', [KeuanganController::class, 'getFortnightlyReport']);
+        Route::get('/weekly-report', [KeuanganController::class, 'getWeeklyReport']);
+        Route::get('/monthly-report', [KeuanganController::class, 'getMonthlyReport']);
+        Route::get('/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
+    });
+
 });
