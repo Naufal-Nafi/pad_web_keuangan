@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/x-icon" href="{{ asset('src/Logo.png') }}">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     @vite(['resources/css/app.css','resources/js/app.js'])
 </head>
 

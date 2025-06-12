@@ -9,15 +9,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth.login');
 });
+
+Route::get('/dashboard', function () {
+    return view('home.home');
+})->name('dashboard');
+
 //route yang hanya bisa diakses jika sudah login
 Route::middleware('auth')->group(function () {
 //route ke dashboard, fitur search, dan data chart
-    Route::get('/dashboard', [ConsignmentController::class, 'mainpageIndex'])->name('mainpage.index');
+//     Route::get('/dashboard', [ConsignmentController::class, 'mainpageIndex'])->name('mainpage.index');
     Route::get('/dashboard/search', [ConsignmentController::class, 'mainpageSearch'])->name('mainpage.search');    
 //route ke transaksi, dan CRUD kongsi
     Route::get('/transaksi', [ConsignmentController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/transaksi/tambah', [ConsignmentController::class, 'laporanCreate'])->name('laporan.create');
-    Route::post('/transaksi', [ConsignmentController::class, 'laporanStore'])->name('laporan.store');
+//     Route::post('/transaksi', [ConsignmentController::class, 'laporanStore'])->name('laporan.store');
     Route::post('/transaksi/update/{consignment_id}', [ConsignmentController::class, 'laporanUpdate'])->name('laporan.update');
     Route::get('/transaksi/edit/{consignment_id}', [ConsignmentController::class, 'laporanEdit'])->name('laporan.edit');
     Route::delete('/transaksi/{consignment_id}', [ConsignmentController::class, 'laporanDestroy'])->name('laporan.destroy');

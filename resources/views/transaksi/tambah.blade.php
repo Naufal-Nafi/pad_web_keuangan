@@ -19,7 +19,7 @@
                         </ul>
                     </div>
                 @endif
-                <form class="space-y-4 md:space-y-6 px-10" method="POST" action="{{ route('laporan.store') }}">
+                <form id="consignmentStore" class="space-y-4 md:space-y-6 px-10">
                     @csrf
 
                     <div class="relative bg-transparent">
@@ -84,33 +84,33 @@
                             placeholder="Price" required="">
 
                         <!-- <input type="text" id="formatted-price"
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                            placeholder="Price" required>
+                                                class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                                placeholder="Price" required>
 
-                        <input type="hidden" name="price" id="price">
+                                            <input type="hidden" name="price" id="price">
 
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                const formattedInput = document.getElementById("formatted-price");
-                                const hiddenInput = document.getElementById("price");
+                                            <script>
+                                                document.addEventListener("DOMContentLoaded", function () {
+                                                    const formattedInput = document.getElementById("formatted-price");
+                                                    const hiddenInput = document.getElementById("price");
 
-                                formattedInput.addEventListener("input", function () {
-                                    let rawValue = this.value.replace(/\D/g, ""); // Hanya ambil angka, hapus karakter lain
-                                    if (rawValue !== "") {
-                                        this.value = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan (dengan titik)
-                                        hiddenInput.value = rawValue; // Simpan nilai asli tanpa format
-                                    } else {
-                                        hiddenInput.value = "";
-                                    }
-                                });
+                                                    formattedInput.addEventListener("input", function () {
+                                                        let rawValue = this.value.replace(/\D/g, ""); // Hanya ambil angka, hapus karakter lain
+                                                        if (rawValue !== "") {
+                                                            this.value = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan (dengan titik)
+                                                            hiddenInput.value = rawValue; // Simpan nilai asli tanpa format
+                                                        } else {
+                                                            hiddenInput.value = "";
+                                                        }
+                                                    });
 
-                                formattedInput.addEventListener("blur", function () {
-                                    if (this.value !== "") {
-                                        this.value = this.value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                                    }
-                                });
-                            });
-                        </script> -->
+                                                    formattedInput.addEventListener("blur", function () {
+                                                        if (this.value !== "") {
+                                                            this.value = this.value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                                                        }
+                                                    });
+                                                });
+                                            </script> -->
 
                     </div>
 
@@ -132,5 +132,44 @@
             </div>
         </div>
     </section>
+
+
+    <script>
+        document.getElementById('consignmentStore').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const token = localStorage.getItem('auth_token');
+            try {
+                const response = await axios.post('/api/consignments', {
+                    store_name: document.getElementById('store_name').value,
+                    product_name: document.getElementById('product_name').value,
+                    exit_date: document.getElementById('exit_date').value,
+                    price: parseFloat(document.getElementById('price').value),
+                    stock: parseInt(document.getElementById('stock').value)
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                console.log('Success:', response.data);
+                alert('Consignment created successfully!');
+                document.getElementById('consignmentStore').reset(); // Perbaikan: ID form yang benar
+            } catch (error) {
+                console.error('Error:', error.response?.data);
+                if (error.response?.status === 422) {
+                    const errors = error.response.data.errors;
+                    for (let field in errors) {
+                        alert(`${field}: ${errors[field][0]}`);
+                    }
+                } else {
+                    alert('An unexpected error occurred: ' + (error.response?.data.message || error.message));
+                }
+            }
+        });
+    </script>
 
 @endsection

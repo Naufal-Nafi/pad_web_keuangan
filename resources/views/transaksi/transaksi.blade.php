@@ -87,9 +87,8 @@
                     </select>
                 </form>
 
-                <div class="mt-2 mr-2">
-                    {{ $consignments->links('pagination::tailwind') }}
-                </div>
+                <!-- Tempat untuk pagination -->
+                <div id="pagination" class="flex gap-2 my-4 flex-wrap"></div>
             </div>
         </div>
         <!-- Modal Konfirmasi -->
@@ -124,99 +123,108 @@
         }
     </script>
 
-    <!-- Fetch api consignment -->
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        async function fetchConsignments(url = '/api/consignments') {
+            const response = await fetch(url);
+            const result = await response.json();
+            const consignments = result.data.data;
+            const links = result.data.links;
             const tbody = document.getElementById('consignment-body');
+            const pagination = document.getElementById('pagination');
 
-            try {
-                const response = await fetch('/api/consignments');
-                const result = await response.json();
-                const data = result.data;
+            // Render Tabel
+            tbody.innerHTML = consignments.map(item => `
+                    <tr class="bg-[#E3ECFF] border-b">
+                        <td class="px-3 py-1">${item.store_name}</td>
+                        <td class="px-3 py-1">${item.product_name}</td>
+                        <td class="px-3 py-1 ${item.status === 'Open' ? 'text-green-500' : (item.status === 'Close' ? 'text-red-500' : '')}">
+                            ${item.status}
+                        </td>
+                        <td class="px-3 py-1">${item.circulation_duration ?? '-'}</td>
+                        <td class="px-3 py-1">${item.entry_date}</td>
+                        <td class="px-3 py-1">${item.exit_date}</td>
+                        <td class="px-3 py-1">Rp ${formatRupiah(item.price)}</td>
+                        <td class="px-3 py-1">${item.stock}</td>
+                        <td class="px-3 py-1">${item.sold}</td>
+                        <td class="px-3 py-1">Rp ${formatRupiah(item.total_price)}</td>
+                        <td class="flex items-center px-3 py-1 justify-end relative">
+                                            <a href="/laporan/${item.consignment_id}/edit"
+                                                class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
+                                                <!-- SVG Icon Edit -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                    <path fill="#B6BE1A" fill-rule="evenodd"
+                                                        d="M17.204 10.796L19 9c.545-.545.818-.818.964-1.112a2 2 0 0 0 0-1.776C19.818 5.818 19.545 5.545 19 5s-.818-.818-1.112-.964a2 2 0 0 0-1.776 0c-.294.146-.567.419-1.112.964l-1.819 1.819a10.9 10.9 0 0 0 4.023 3.977m-5.477-2.523l-6.87 6.87c-.426.426-.638.638-.778.9c-.14.26-.199.555-.316 1.145l-.616 3.077c-.066.332-.1.498-.005.593s.26.061.593-.005l3.077-.616c.59-.117.885-.176 1.146-.316s.473-.352.898-.777l6.89-6.89a12.9 12.9 0 0 1-4.02-3.98"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#B6BE1A] text-white text-xs rounded py-1 px-2 shadow-md">
+                                                    Edit
+                                                </span>
+                                            </a>
 
-                data.forEach(consignment => {
-                    const status = consignment.status || 'Unknown';
-                    const statusClass = status === 'Open' ? 'text-green-500'
-                        : status === 'Close' ? 'text-red-500'
-                            : '';
+                                            <div class="relative group">
+                                                <button onclick="confirmDelete(${item.consignment_id})"
+                                                    class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
+                                                    <!-- SVG Icon Delete -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                        <g fill="none">
+                                                            <path fill="#C50505" fill-rule="evenodd"
+                                                                d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
+                                                                clip-rule="evenodd" />
+                                                            <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
+                                                                d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
+                                                        </g>
+                                                    </svg>
+                                                </button>
+                                                <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
+                                                    Hapus
+                                                </span>
+                                            </div>
 
-                    const row = `
-                        <tr class="bg-[#E3ECFF] border-b">
-                            <td class="px-3 py-1">${consignment.store_name}</td>
-                            <td class="px-3 py-1">${consignment.product_name}</td>
-                            <td class="px-3 py-1 ${statusClass}">${status}</td>
-                            <td class="px-3 py-1">${consignment.circulation_duration || '-'}</td>
-                            <td class="px-3 py-1">${consignment.entry_date}</td>
-                            <td class="px-3 py-1">${consignment.exit_date}</td>
-                            <td class="px-3 py-1">${consignment.price !== null ? 'Rp ' + Number(consignment.price).toLocaleString('id-ID', { minimumFractionDigits: 2 }) : '-'}</td>
-                            <td class="px-3 py-1">${consignment.stock}</td>
-                            <td class="px-3 py-1">${consignment.sold}</td>
-                            <td class="px-3 py-1">${'Rp ' + Number(consignment.total_price).toLocaleString('id-ID', { minimumFractionDigits: 2 })}</td>
-                            <td class="flex items-center px-3 py-1 justify-end relative">
-                                <a href="/laporan/${consignment.consignment_id}/edit"
-                                    class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
-                                    <!-- SVG Icon Edit -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                        <path fill="#B6BE1A" fill-rule="evenodd"
-                                            d="M17.204 10.796L19 9c.545-.545.818-.818.964-1.112a2 2 0 0 0 0-1.776C19.818 5.818 19.545 5.545 19 5s-.818-.818-1.112-.964a2 2 0 0 0-1.776 0c-.294.146-.567.419-1.112.964l-1.819 1.819a10.9 10.9 0 0 0 4.023 3.977m-5.477-2.523l-6.87 6.87c-.426.426-.638.638-.778.9c-.14.26-.199.555-.316 1.145l-.616 3.077c-.066.332-.1.498-.005.593s.26.061.593-.005l3.077-.616c.59-.117.885-.176 1.146-.316s.473-.352.898-.777l6.89-6.89a12.9 12.9 0 0 1-4.02-3.98"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#B6BE1A] text-white text-xs rounded py-1 px-2 shadow-md">
-                                        Edit
-                                    </span>
-                                </a>
+                                            <a href="/laporan/${item.consignment_id}/print"
+                                                class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
+                                                <!-- SVG Icon Print -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                                    <path d="M6 18H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2">
+                                                    </path>
+                                                    <rect x="6" y="14" width="12" height="8"></rect>
+                                                </svg>
+                                                <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 shadow-md">
+                                                    Print
+                                                </span>
+                                            </a>
+                                        </td>
+                    </tr>
+                `).join('');
 
-                                <div class="relative group">
-                                    <button onclick="confirmDelete(${consignment.consignment_id})"
-                                        class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
-                                        <!-- SVG Icon Delete -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                            <g fill="none">
-                                                <path fill="#C50505" fill-rule="evenodd"
-                                                    d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
-                                                    clip-rule="evenodd" />
-                                                <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
-                                                    d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
-                                            </g>
-                                        </svg>
-                                    </button>
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
-                                        Hapus
-                                    </span>
-                                </div>
+            // Render Pagination
+            pagination.innerHTML = links.map(link => `
+                    <button 
+                        class="px-2 py-1 border rounded ${link.active ? 'bg-blue-500 text-white' : 'bg-white'}"
+                        ${link.url ? `onclick="fetchConsignments('${link.url}')"` : 'disabled'}
+                    >
+                        ${link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
+                    </button>
+                `).join('');
+        }
 
-                                <a href="/laporan/${consignment.consignment_id}/print"
-                                    class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
-                                    <!-- SVG Icon Print -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                        <path d="M6 18H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2">
-                                        </path>
-                                        <rect x="6" y="14" width="12" height="8"></rect>
-                                    </svg>
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 shadow-md">
-                                        Print
-                                    </span>
-                                </a>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.insertAdjacentHTML('beforeend', row);
-                });
-            } catch (error) {
-                console.error('Gagal mengambil data:', error);
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-red-500">Gagal memuat data</td></tr>';
-            }
-        });
+        function formatRupiah(number) {
+            if (number === null || number === undefined) return '-';
+            return parseFloat(number).toLocaleString('id-ID', { minimumFractionDigits: 2 });
+        }
 
         function confirmDelete(id) {
-            // Misal: pakai modal konfirmasi atau langsung kirim delete
-            if (confirm("Yakin ingin menghapus data ini?")) {
-                // Panggil modal / AJAX delete di sini
-                console.log("Hapus ID:", id);
+            if (confirm("Apakah yakin ingin menghapus data ini?")) {
+                // aksi hapus (fetch DELETE atau redirect)
+                console.log("Hapus ID: ", id);
             }
         }
+
+        // Load saat pertama kali
+        document.addEventListener('DOMContentLoaded', () => fetchConsignments());
     </script>
+
+    
 @endsection
