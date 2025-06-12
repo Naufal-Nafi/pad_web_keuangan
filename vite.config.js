@@ -8,4 +8,8 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        sourcemap: true, // Enable source maps for easier debugging
+        outDir: 'public/build', // Specify the output directory for built files
+    }
 });

@@ -165,7 +165,6 @@
         const profit = new CountUp('profit', document.getElementById('profit').dataset.val, options);
         const income = new CountUp('income', document.getElementById('income').dataset.val, options);
         const expense = new CountUp('expense', document.getElementById('expense').dataset.val, options);
-        const kontol = new Count
 
         if (!profit.error) profit.start();
         if (!income.error) income.start();
