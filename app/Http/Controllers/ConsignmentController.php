@@ -55,7 +55,7 @@ class ConsignmentController extends Controller
         });
 
         return view('transaksi.transaksi', compact('consignments'));
-    }    
+    }
 
     //fungsi untuk menampilkan halaman edit consignment berdasarkan ID
     public function laporanEdit($consignment_id)
@@ -80,7 +80,7 @@ class ConsignmentController extends Controller
             'stock' => 'required|integer',
             'exit_date' => 'required|date',
         ]);
-        
+
         // dd($request->price);
         $consignment = new Consignment();
 
@@ -155,10 +155,9 @@ class ConsignmentController extends Controller
     public function mainpageIndex()
     {
         $consignments = Consignment::with('product', 'store')
-            ->paginate(10); // Menampilkan 10 data per halaman
+            ->paginate(10);
 
-        // Transformasi setelah pagination
-        $consignments->getCollection()->transform(function ($consignment) {
+        $transformedConsignments = $consignments->getCollection()->transform(function ($consignment) {
             return [
                 'store_name' => $consignment->store->store_name,
                 'product_name' => $consignment->product->product_name,
@@ -167,14 +166,22 @@ class ConsignmentController extends Controller
             ];
         });
 
-
-
         $totalIncome = Consignment::selectRaw('SUM(sold * products.price) as total')
             ->join('products', 'consignments.product_id', '=', 'products.product_id')
             ->value('total') ?? 0;
         $totalExpense = Expense::sum('amount');
 
-        return view('home.home', compact('consignments', 'totalExpense', 'totalIncome'));
+        return response()->json([
+            'consignments' => [
+                'data' => $transformedConsignments,
+                'current_page' => $consignments->currentPage(),
+                'last_page' => $consignments->lastPage(),
+                'per_page' => $consignments->perPage(),
+                'total' => $consignments->total(),
+            ],
+            'totalIncome' => $totalIncome,
+            'totalExpense' => $totalExpense,
+        ], 200);
     }
 
     //fungsi untuk mencari consignment berdasarkan nama produk atau nama toko

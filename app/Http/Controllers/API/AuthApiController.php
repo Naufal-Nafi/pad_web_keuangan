@@ -69,10 +69,15 @@ class AuthApiController extends Controller
             }
 
             $user = Auth::user();
-            $token = $user->createToken('auth-token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role, // Pastikan kolom role ada di tabel users
+                ],
                 'token' => $token,
                 'message' => 'Login successful'
             ]);

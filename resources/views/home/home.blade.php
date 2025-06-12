@@ -8,7 +8,7 @@
 
     <section class="w-full min-h-screen flex">
         <div class="w-2/5 flex flex-col">
-            <div class="my-12 ">
+            <div class="my-12">
                 <div class="flex gap-2 justify-between mb-4">
                     <h6 class="ms-4 font-bold">Line Chart Laporan Transaksi</h6>
                     <div>
@@ -71,8 +71,8 @@
                         </div>
                     </div>
                 @endforeach
-
             </div>
+
             <div id="storeIncomeSection" class="block gap-2 my-12 min-h-[350px]">
                 <h6 class="ms-4 mb-4 font-bold">Pie chart Per Toko</h6>
                 <div class="flex gap-4 flex-wrap">
@@ -85,22 +85,22 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-        <div class="w-3/5 flex flex-col min-h-screen ">
+
+        <div class="w-3/5 flex flex-col min-h-screen">
             <div class="flex-none flex justify-between items-center font-bold mx-8 py-12">
                 <div class="px-16 py-6 rounded-xl bg-green-400 flex flex-col items-center">
                     <p>Profit</p>
-                    <p id="profit" data-val="{{ $totalIncome - $totalExpense }}"></p>
+                    <p id="profit" >Loading...</p>
                 </div>
                 <div class="px-16 py-6 rounded-xl bg-blue-400 flex flex-col items-center">
                     <p>Income</p>
-                    <p id="income" data-val="{{ $totalIncome }}"></p>
+                    <p id="income" >Loading...</p>
                 </div>
                 <div class="px-16 py-6 rounded-xl bg-red-400 flex flex-col items-center">
                     <p>Outcome</p>
-                    <p id="expense" data-val="{{ $totalExpense }}"></p>
+                    <p id="expense" >Loading...</p>
                 </div>
             </div>
 
@@ -113,41 +113,20 @@
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                         <thead class="text-xs text-white uppercase bg-[#161D6F]">
                             <tr>
-                                <th scope="col" class="px-6 py-3">
-                                    Nama Toko
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Nama Barang
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Pendapatan
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Tanggal
-                                </th>
+                                <th scope="col" class="px-6 py-3">Nama Toko</th>
+                                <th scope="col" class="px-6 py-3">Nama Barang</th>
+                                <th scope="col" class="px-6 py-3">Pendapatan</th>
+                                <th scope="col" class="px-6 py-3">Tanggal</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($consignments as $consignment)
-                                <tr class="bg-white border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        {{ $consignment['store_name'] }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {{ $consignment['product_name'] }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {{ $consignment['income'] }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {{ $consignment['exit_date'] }}
-                                    </td>
-                                </tr>
-                            @endforeach
+                        <tbody id="consignmentsTable">
+                            <tr>
+                                <td colspan="4">Loading...</td>
+                            </tr>
                         </tbody>
                     </table>
-                    <div class="p-4">
-                        {{ $consignments->links() }}
+                    <div id="pagination" class="p-4">
+                        <!-- Paginasi akan diisi oleh JavaScript -->
                     </div>
                 </div>
             </div>
@@ -162,16 +141,75 @@
             duration: 2
         };
 
-        const profit = new CountUp('profit', document.getElementById('profit').dataset.val, options);
-        const income = new CountUp('income', document.getElementById('income').dataset.val, options);
-        const expense = new CountUp('expense', document.getElementById('expense').dataset.val, options);
-        const kontol = new Count
+        async function fetchDashboardData(page = 1) {
+            try {
+                const token = localStorage.getItem('auth_token');
 
-        if (!profit.error) profit.start();
-        if (!income.error) income.start();
-        if (!expense.error) expense.start();
+                if (!token) {
+                    window.location.href = '/';
+                    return;
+                }
+
+                const response = await fetch(`/api/dashboard?page=${page}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('auth_token');
+                        window.location.href = '/';
+                    }
+                    throw new Error('Failed to fetch data');
+                }
+
+                const data = await response.json();
+
+                // Update counters
+                document.getElementById('profit').textContent = `Rp ${(data.totalIncome - data.totalExpense).toLocaleString('id-ID')}`;
+                document.getElementById('income').textContent = `Rp ${data.totalIncome.toLocaleString('id-ID')}`;
+                document.getElementById('expense').textContent = `Rp ${data.totalExpense.toLocaleString('id-ID')}`;
+
+                // Update table
+                const tableBody = document.getElementById('consignmentsTable');
+                tableBody.innerHTML = '';
+                data.consignments.data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-gray-50';
+                    row.innerHTML = `
+                            <td class="px-6 py-4">${item.store_name}</td>
+                            <td class="px-6 py-4">${item.product_name}</td>
+                            <td class="px-6 py-4">${item.income}</td>
+                            <td class="px-6 py-4">${item.exit_date}</td>
+                        `;
+                    tableBody.appendChild(row);
+                });
+
+                // Update pagination
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                if (data.consignments.last_page > 1) {
+                    for (let i = 1; i <= data.consignments.last_page; i++) {
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.textContent = i;
+                        link.className = 'px-2 py-1 mx-1 ' + (i === data.consignments.current_page ? 'font-bold' : '');
+                        link.addEventListener('click', () => fetchDashboardData(i));
+                        pagination.appendChild(link);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load dashboard data');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDashboardData();
+        });
     </script>
-
 
     <script>
         const reportFrames = [
@@ -181,79 +219,71 @@
             { id: 'monthlyReportChart', sectionId: 'monthlySection', url: '/api/dashboard/monthly-report', rendered: false }
         ];
 
-        function renderLineChart(frame) {
-            fetch(frame.url)
-                .then(response => response.json())
-                .then(data => {
-                    const ctx = document.getElementById(frame.id).getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: data.map(row => row.label),
-                            datasets: [
-                                {
-                                    label: 'Masuk',
-                                    data: data.map(row => row.masuk),
-                                    backgroundColor: 'rgba(51, 160, 44, 1)',
-                                    borderColor: 'rgba(51, 160, 44, 0.8)',
-                                    fill: false
-                                },
-                                {
-                                    label: 'Keluar',
-                                    data: data.map(row => row.keluar),
-                                    backgroundColor: 'rgba(227, 26, 28, 1)',
-                                    borderColor: 'rgba(227, 26, 28, 0.8)',
-                                    fill: false
-                                }
-                            ]
-                        },
-                        options: {
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        boxWidth: 30,
-                                        boxHeight: 2
-                                    }
-                                }
+        async function renderLineChart(frame) {
+            try {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch(frame.url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to fetch chart data');
+                const data = await response.json();
+
+                const ctx = document.getElementById(frame.id).getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(row => row.label),
+                        datasets: [
+                            {
+                                label: 'Masuk',
+                                data: data.map(row => row.masuk),
+                                backgroundColor: 'rgba(51, 160, 44, 1)',
+                                borderColor: 'rgba(51, 160, 44, 0.8)',
+                                fill: false
                             },
-                            animation: {
-                                duration: 1000,
-                                easing: 'easeOutCirc'
-                            },
-                            hover: {
-                                animationDuration: 500
-                            },
-                            tension: 0.3,
-                            scales: {
-                                y: {
-                                    min: 0,
-                                }
+                            {
+                                label: 'Keluar',
+                                data: data.map(row => row.keluar),
+                                backgroundColor: 'rgba(227, 26, 28, 1)',
+                                borderColor: 'rgba(227, 26, 28, 0.8)',
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 30, boxHeight: 2 }
                             }
                         },
-
-                    });
-                    frame.rendered = true;
-                })
-                .catch(error => console.error(`Error loading chart for ${frame.id}:`, error));
+                        animation: { duration: 1000, easing: 'easeOutCirc' },
+                        hover: { animationDuration: 500 },
+                        tension: 0.3,
+                        scales: { y: { min: 0 } }
+                    }
+                });
+                frame.rendered = true;
+            } catch (error) {
+                console.error(`Error loading chart for ${frame.id}:`, error);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Load default (daily)
             const defaultFrame = reportFrames.find(f => f.id === 'dailyReportChart');
             renderLineChart(defaultFrame);
 
             document.querySelectorAll('.report-filter').forEach(button => {
                 button.addEventListener('click', () => {
                     const targetSection = button.dataset.target;
-
-                    // Tampilkan hanya section yang sesuai
                     document.querySelectorAll('.report-section').forEach(section => {
                         section.classList.add('hidden');
                     });
                     document.getElementById(targetSection).classList.remove('hidden');
 
-                    // Ubah style tombol
                     document.querySelectorAll('.report-filter').forEach(btn => {
                         btn.classList.remove('bg-blue-500', 'text-white');
                         btn.classList.add('bg-gray-200', 'text-gray-800');
@@ -261,7 +291,6 @@
                     button.classList.remove('bg-gray-200', 'text-gray-800');
                     button.classList.add('bg-blue-500', 'text-white');
 
-                    // Render chart jika belum
                     const frame = reportFrames.find(f => f.sectionId === targetSection);
                     if (frame && !frame.rendered) {
                         renderLineChart(frame);
@@ -281,7 +310,6 @@
             btnGross.addEventListener('click', () => {
                 grossSection.classList.remove('hidden');
                 storeSection.classList.add('hidden');
-
                 btnGross.classList.remove('bg-gray-200', 'text-gray-800');
                 btnGross.classList.add('bg-blue-600', 'text-white');
                 btnStore.classList.remove('bg-blue-600', 'text-white');
@@ -291,7 +319,6 @@
             btnStore.addEventListener('click', () => {
                 storeSection.classList.remove('hidden');
                 grossSection.classList.add('hidden');
-
                 btnStore.classList.remove('bg-gray-200', 'text-gray-800');
                 btnStore.classList.add('bg-blue-600', 'text-white');
                 btnGross.classList.remove('bg-blue-600', 'text-white');
@@ -300,12 +327,11 @@
         });
     </script>
 
-
     <script>
         function generateColors(count) {
             const colors = [];
             for (let i = 0; i < count; i++) {
-                const hue = Math.floor((360 / count) * i); // warna beragam dari 0 sampai 360
+                const hue = Math.floor((360 / count) * i);
                 colors.push(`hsl(${hue}, 70%, 60%)`);
             }
             return colors;
@@ -328,107 +354,107 @@
             return chunks;
         }
 
-        function renderPaginatedTables(data, colors, containerId) {
+        async function renderPaginatedTables(data, colors, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
 
             const chunks = chunkArray(data, 5);
-
             chunks.forEach((chunk, chunkIndex) => {
                 const table = document.createElement('table');
                 table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
                 table.innerHTML = `
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="px-4 py-2 font-medium">Produk</th>
-                                            <th class="px-4 py-2 font-medium">Income</th>
-                                            <th class="px-4 py-2 font-medium">Persentase</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                `;
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 font-medium">Produk</th>
+                                <th class="px-4 py-2 font-medium">Income</th>
+                                <th class="px-4 py-2 font-medium">Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    `;
 
                 const tbody = table.querySelector('tbody');
                 chunk.forEach((item, i) => {
                     const colorIndex = chunkIndex * 5 + i;
                     const color = colors[colorIndex] || '#ccc';
-
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                                        <td class="px-4 py-2 text-gray-800">
-                                            <span style="display:inline-block;width:15px;height:15px;background:${color};border-radius:3px;"></span>
-                                            ${item.label}
-                                        </td>
-                                        <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                    `;
+                            <td class="px-4 py-2 text-gray-800">
+                                <span style="display:inline-block;width:15px;height:15px;background:${color};border-radius:3px;"></span>
+                                ${item.label}
+                            </td>
+                            <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                            <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                        `;
                     tbody.appendChild(row);
                 });
-
                 container.appendChild(table);
             });
         }
 
-        function renderChart(frame) {
-            fetch(`/api/dashboard/income-percentage/${frame.days}`)
-                .then(response => response.json())
-                .then(data => {
-                    const colors = generateColors(data.length);
-                    const labels = data.map(item => item.label);
-                    const percentages = data.map(item => item.percentage);
+        async function renderChart(frame) {
+            try {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch(`/api/dashboard/income-percentage/${frame.days}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to fetch chart data');
+                const data = await response.json();
 
-                    const ctx = document.getElementById(frame.chartId).getContext('2d');
-                    new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Persentase Income',
-                                data: percentages,
-                                backgroundColor: colors,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            rotation: 270,
-                            plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function (context) {
-                                            return `${context.label}: ${context.raw}%`;
-                                        }
+                const colors = generateColors(data.length);
+                const labels = data.map(item => item.label);
+                const percentages = data.map(item => item.percentage);
+
+                const ctx = document.getElementById(frame.chartId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Persentase Income',
+                            data: percentages,
+                            backgroundColor: colors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        rotation: 270,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return `${context.label}: ${context.raw}%`;
                                     }
                                 }
                             }
                         }
-                    });
-
-                    renderPaginatedTables(data, colors, frame.tableContainerId);
-                    frame.rendered = true;
+                    }
                 });
+
+                renderPaginatedTables(data, colors, frame.tableContainerId);
+                frame.rendered = true;
+            } catch (error) {
+                console.error(`Error loading chart for ${frame.chartId}:`, error);
+            }
         }
-    </script>
 
-
-    <script>
-        // Tombol filter
         document.querySelectorAll('.time-filter').forEach(button => {
             button.addEventListener('click', () => {
                 const target = button.dataset.target;
-
                 document.querySelectorAll('.time-section').forEach(section => {
                     section.classList.add('hidden');
                 });
-
                 document.getElementById(target).classList.remove('hidden');
 
                 document.querySelectorAll('.time-filter').forEach(btn => {
                     btn.classList.remove('bg-blue-500', 'text-white');
                     btn.classList.add('bg-gray-200', 'text-gray-800');
                 });
-
                 button.classList.add('bg-blue-500', 'text-white');
                 button.classList.remove('bg-gray-200', 'text-gray-800');
 
@@ -446,84 +472,89 @@
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch('/api/dashboard/store-income-percentage')
-                .then(response => response.json())
-                .then(data => {
-                    const colors = generateColors(data.length);
-                    const labels = data.map(item => item.store_name);
-                    const percentages = data.map(item => item.percentage);
+        async function renderStoreIncomeChart() {
+            try {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch('/api/dashboard/store-income-percentage', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to fetch chart data');
+                const data = await response.json();
 
-                    // Render Chart
-                    const ctx = document.getElementById('storeIncomesChart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                data: percentages,
-                                backgroundColor: colors
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            rotation: 270,
-                            plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function (context) {
-                                            const percentage = data[context.dataIndex].percentage;
-                                            return `${context.label}: ${percentage}%`;
-                                        }
+                const colors = generateColors(data.length);
+                const labels = data.map(item => item.store_name);
+                const percentages = data.map(item => item.percentage);
+
+                const ctx = document.getElementById('storeIncomesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: percentages,
+                            backgroundColor: colors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        rotation: 270,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const percentage = data[context.dataIndex].percentage;
+                                        return `${context.label}: ${percentage}%`;
                                     }
                                 }
                             }
                         }
-                    });
-
-                    // Generate paginated tables (5 per table)
-                    const container = document.getElementById('storeTableContainer');
-                    container.innerHTML = ''; // bersihkan kontainer
-
-                    const chunkSize = 5;
-                    const chunks = [];
-                    for (let i = 0; i < data.length; i += chunkSize) {
-                        chunks.push(data.slice(i, i + chunkSize));
                     }
-
-                    chunks.forEach((chunk, chunkIndex) => {
-                        const table = document.createElement('table');
-                        table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
-                        table.innerHTML = `
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="px-4 py-2 font-medium">Store Name</th>
-                                            <th class="px-4 py-2 font-medium">Total Income</th>
-                                            <th class="px-4 py-2 font-medium">Percentage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                `;
-
-                        const tbody = table.querySelector('tbody');
-                        chunk.forEach((item, i) => {
-                            const colorIndex = chunkIndex * chunkSize + i;
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                        <td class="px-4 py-2 text-gray-800">
-                                            <span style="display:inline-block;width:15px;height:15px;background:${colors[colorIndex]};border-radius:3px;margin-right:4px;"></span>
-                                            ${item.store_name}
-                                        </td>
-                                        <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
-                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                    `;
-                            tbody.appendChild(row);
-                        });
-
-                        container.appendChild(table);
-                    });
                 });
+
+                const container = document.getElementById('storeTableContainer');
+                container.innerHTML = '';
+                const chunks = chunkArray(data, 5);
+                chunks.forEach((chunk, chunkIndex) => {
+                    const table = document.createElement('table');
+                    table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
+                    table.innerHTML = `
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 font-medium">Store Name</th>
+                                    <th class="px-4 py-2 font-medium">Total Income</th>
+                                    <th class="px-4 py-2 font-medium">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        `;
+                    const tbody = table.querySelector('tbody');
+                    chunk.forEach((item, i) => {
+                        const colorIndex = chunkIndex * 5 + i;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                                <td class="px-4 py-2 text-gray-800">
+                                    <span style="display:inline-block;width:15px;height:15px;background:${colors[colorIndex]};border-radius:3px;margin-right:4px;"></span>
+                                    ${item.store_name}
+                                </td>
+                                <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
+                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                            `;
+                        tbody.appendChild(row);
+                    });
+                    container.appendChild(table);
+                });
+            } catch (error) {
+                console.error('Error loading store income chart:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStoreIncomeChart();
         });
     </script>
+
 @endsection
