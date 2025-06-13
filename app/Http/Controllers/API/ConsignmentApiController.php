@@ -10,7 +10,7 @@ use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 
 class ConsignmentApiController extends Controller
 {
@@ -95,18 +95,7 @@ class ConsignmentApiController extends Controller
             'store_name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'exit_date' => 'required|date',
-        //     'entry_date' => 'nullable|date|after_or_equal:exit_date',
-        //     'sold' => [
-        //         'nullable',
-        //         'integer',
-        //         'min:0',
-        //         function ($attribute, $value, $fail) use ($request) {
-        //             if ($value > $request->stock) {
-        //                 $fail("Terjual lebih banyak dari stok yang tersedia.");
-        //             }
-        //         },
-        //     ],
+            'exit_date' => 'required|date'
         ]);
 
         if ($validator->fails()) {

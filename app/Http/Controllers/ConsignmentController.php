@@ -187,33 +187,33 @@ class ConsignmentController extends Controller
         ], 200);
     }
 
-    //fungsi untuk mencari consignment berdasarkan nama produk atau nama toko
-    public function mainpageSearch(Request $request)
-    {
-        $search = $request->input('search');
+    // //fungsi untuk mencari consignment berdasarkan nama produk atau nama toko
+    // public function mainpageSearch(Request $request)
+    // {
+    //     $search = $request->input('search');
 
-        $consignments = Consignment::with('product', 'store')
-            ->when($search, function ($query, $search) {
-                return $query->whereHas('product', function ($q) use ($search) {
-                    $q->where('product_name', 'like', '%' . $search . '%');
-                })->orWhereHas('store', function ($q) use ($search) {
-                    $q->where('store_name', 'like', '%' . $search . '%');
-                });
-            })
-            ->get()
-            ->filter(function ($consignment) {
-                return $consignment->status === 'open';
-            })
-            ->map(function ($consignment) {
-                return [
-                    'store_name' => $consignment->store->store_name,
-                    'product_name' => $consignment->product->product_name,
-                    'stock' => $consignment->stock,
-                ];
-            });
+    //     $consignments = Consignment::with('product', 'store')
+    //         ->when($search, function ($query, $search) {
+    //             return $query->whereHas('product', function ($q) use ($search) {
+    //                 $q->where('product_name', 'like', '%' . $search . '%');
+    //             })->orWhereHas('store', function ($q) use ($search) {
+    //                 $q->where('store_name', 'like', '%' . $search . '%');
+    //             });
+    //         })
+    //         ->get()
+    //         ->filter(function ($consignment) {
+    //             return $consignment->status === 'open';
+    //         })
+    //         ->map(function ($consignment) {
+    //             return [
+    //                 'store_name' => $consignment->store->store_name,
+    //                 'product_name' => $consignment->product->product_name,
+    //                 'stock' => $consignment->stock,
+    //             ];
+    //         });
 
-        return view('home.home', compact('consignments', 'search'));
-    }
+    //     return view('home.home', compact('consignments', 'search'));
+    // }
 
     public function printReceipt($consignment_id)
     {

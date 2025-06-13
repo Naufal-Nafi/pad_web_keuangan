@@ -63,53 +63,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach($data_user as $index => $user)
-                    <tr class="bg-white border-b hover:bg-gray-50">
-                        <th scope="row" class="px-3 py-1 font-medium text-gray-900 whitespace-nowrap">
-                            {{ $user->name }}
-                        </th>
-                        <td class="px-3 py-1">
-                            {{ $user->email }}
-                        </td>
-                        <td class="px-3 py-1">
-                            ********
-                        </td>
-                        <td class="flex items-center px-3 py-1 justify-end">
-                            <a href="{{ route('pegawai.edit', $user->user_id) }}"
-                                class="border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                    <path fill="#B3BE1A" fill-rule="evenodd"
-                                        d="M17.204 10.793L19 9c.545-.545.818-.818.934-1.112a2 2 0 0 0 0-1.773C19.818 5.818 19.545 5.545 19 5s-.818-.818-1.112-.934a2 2 0 0 0-1.773 0c-.294.143-.537.419-1.112.934l-1.819 1.819a10.9 10.9 0 0 0 4.023 3.977m-5.477-2.523l-3.87 3.87c-.423.423-.338.338-.778.9c-.14.23-.199.555-.313 1.145l-.313 3.077c-.03.332-.1.498-.005.593s.23.031.593-.005l3.077-.313c.59-.117.885-.173 1.143-.313s.473-.352.898-.777l3.89-3.89a12.9 12.9 0 0 1-4.02-3.98"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                <span
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#B6BE1A] text-white text-xs rounded py-1 px-2 shadow-md">
-                                    Edit
-                                </span>
-                            </a>
-                            <!-- Tombol Delete -->
-                            <div class="relative group">
-                                <button @click="showModalUser = true; deleteId = {{ $user['user_id'] }}"
-                                    class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                        <g fill="none">
-                                            <path fill="#C50505" fill-rule="evenodd"
-                                                d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
-                                                clip-rule="evenodd" />
-                                            <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
-                                                d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
-                                        </g>
-                                    </svg>
-                                </button>
-                                <span
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
-                                    Hapus
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
+            <tbody id="user-body">
             </tbody>
         </table>
         <!-- pagination -->
@@ -132,9 +86,7 @@
                     <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>
             </form>
-            <div class="mt-2 mr-2">
-                {{ $data_user->links('pagination::tailwind') }}
-            </div>
+            <div id="pagination" class="flex gap-2 my-4 flex-wrap"></div>
         </div>
         <!-- Modal Konfirmasi -->
         <div x-show="showModalUser" x-cloak
@@ -158,21 +110,92 @@
     </div>
 
     <script>
-        function confirmDelete() {
-            const confirmed = confirm('Delete this user?');
-            if (!confirmed) return false;
+        async function fetchUser(page = 1) {
+            const token = localStorage.getItem('auth_token');
+            console.log(token);
+            const response = await fetch(`/api/pegawai?page=${page}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
 
-            console.log('Delete confirmed. Submitting form.');
-            return true;
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('auth_token');
+                    window.location.href = '/';
+                }
+                throw new Error('Failed to fetch data');
+            }
+
+            const result = await response.json();
+            console.log(result);
+            const user = result.data.data;
+            const links = result.data.links;
+            const tbody = document.getElementById('user-body');
+
+            tbody.innerHTML = user.map(item => `
+            <tr class="bg-white border-b hover:bg-gray-50">
+                <th scope="row" class="px-3 py-1 font-medium text-gray-900 whitespace-nowrap">
+                    ${item.name}
+                </th>
+                <td class="px-3 py-1">
+                    ${item.email}
+                </td>
+                <td class="px-3 py-1">
+                    ********
+                </td>
+                <td class="flex items-center px-3 py-1 justify-end">
+                    <a href="/pegawai/${item.user_id}/edit"
+                        class="border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#B3BE1A" fill-rule="evenodd"
+                                d="M17.204 10.793L19 9c.545-.545.818-.818.934-1.112a2 2 0 0 0 0-1.773C19.818 5.818 19.545 5.545 19 5s-.818-.818-1.112-.934a2 2 0 0 0-1.773 0c-.294.143-.537.419-1.112.934l-1.819 1.819a10.9 10.9 0 0 0 4.023 3.977m-5.477-2.523l-3.87 3.87c-.423.423-.338.338-.778.9c-.14.23-.199.555-.313 1.145l-.313 3.077c-.03.332-.1.498-.005.593s.23.031.593-.005l3.077-.313c.59-.117.885-.173 1.143-.313s.473-.352.898-.777l3.89-3.89a12.9 12.9 0 0 1-4.02-3.98"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span
+                            class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#B6BE1A] text-white text-xs rounded py-1 px-2 shadow-md">
+                            Edit
+                        </span>
+                    </a>
+                    <!-- Tombol Delete -->
+                    <div class="relative group">
+                        <button onclick="showDeleteModal(${item.user_id})"
+                            class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <g fill="none">
+                                    <path fill="#C50505" fill-rule="evenodd"
+                                        d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
+                                        clip-rule="evenodd" />
+                                    <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
+                                        d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
+                                </g>
+                            </svg>
+                        </button>
+                        <span
+                            class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
+                            Hapus
+                        </span>
+                    </div>
+                </td>
+            </tr>
+            `).join('');
+        const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            if (result.pagination.last_page > 1) {
+                for (let i = 1; i <= result.pagination.last_page; i++) {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = i;
+                    link.className = 'px-2 py-1 mx-1 ' + (i === result.pagination.current_page ? 'font-bold' : '');
+                    link.addEventListener('click', () => fetchUser(i));
+                    pagination.appendChild(link);
+                }
+            }
         }
 
-        function confirmUpdate() {
-            const confirmed = confirm('Update this user?');
-            if (!confirmed) return false;
-
-            console.log('Update confirmed. Submitting form.');
-            return true;
-        }
+        document.addEventListener('DOMContentLoaded', () => fetchUser());
+        console.log('asbdiufhiasuhdf')
     </script>
 
 @endsection

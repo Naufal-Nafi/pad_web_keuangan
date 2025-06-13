@@ -10,12 +10,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'alganis@admin.com',
-            'password' => Hash::make('admin12345'),
-            'role' => 'owner',
-        ]);
         $this->call([
             ProductSeeder::class,
             StoreSeeder::class,

@@ -25,10 +25,28 @@ Route::get('/barang', function (){
     return view('barang.barang');
 })->name('barang');
 
+Route::prefix('pegawai')->group(function () {
+    Route::get('/', function() {
+        return view('manajemen.pegawai');
+    })->name('pegawai.index');
+
+    Route::get('/create', function() {
+        return view('manajemen.create');
+    })->name('pegawai.create');
+
+    Route::get('/edit', function() {
+        return view('manajemen.edit');
+    })->name('pegawai.edit');
+
+    Route::get('/search', function() {
+        return view('manajemen.pegawai');
+    })->name('pegawai.search');
+});
+
 //route yang hanya bisa diakses jika sudah login
 Route::middleware('auth')->group(function () {
 //route ke dashboard, fitur search, dan data chart
-//     Route::get('/dashboard', [ConsignmentController::class, 'mainpageIndex'])->name('mainpage.index');
+    // Route::get('/dashboard', [ConsignmentController::class, 'mainpageIndex'])->name('mainpage.index');
     Route::get('/dashboard/search', [ConsignmentController::class, 'mainpageSearch'])->name('mainpage.search');    
 //route ke transaksi, dan CRUD kongsi
     // Route::get('/transaksi', [ConsignmentController::class, 'laporanIndex'])->name('laporan.index');
@@ -41,13 +59,13 @@ Route::middleware('auth')->group(function () {
     //route yang hanya bisa diakses oleh owner
     Route::middleware('owner')->group(function () {
 //route ke manajemen pegawai, search, dan CRUD pegawai
-        Route::get('/pegawai', [UserController::class, 'index'])->name('pegawai.index');
-        Route::get('/pegawai/create', [UserController::class, 'create'])->name('pegawai.create');
-        Route::post('/pegawai', [UserController::class, 'store'])->name('pegawai.store');
-        Route::delete('/pegawai/{user_id}', [UserController::class, 'destroy'])->name('pegawai.destroy');
-        Route::get('/pegawai/edit/{user_id}', [UserController::class, 'edit'])->name('pegawai.edit');
-        Route::post('/pegawai/update/{user_id}', [UserController::class, 'update'])->name('pegawai.update');
-        Route::get('/pegawai/search', [UserController::class, 'search'])->name('pegawai.search');
+        // Route::get('/pegawai', [UserController::class, 'index'])->name('pegawai.index');
+        // Route::get('/pegawai/create', [UserController::class, 'create'])->name('pegawai.create');
+        // Route::post('/pegawai', [UserController::class, 'store'])->name('pegawai.store');
+        // Route::delete('/pegawai/{user_id}', [UserController::class, 'destroy'])->name('pegawai.destroy');
+        // Route::get('/pegawai/edit/{user_id}', [UserController::class, 'edit'])->name('pegawai.edit');
+        // Route::post('/pegawai/update/{user_id}', [UserController::class, 'update'])->name('pegawai.update');
+        // Route::get('/pegawai/search', [UserController::class, 'search'])->name('pegawai.search');
 //route ke manajemen barang, dan CRUD barang
         // Route::get('/barang', [ExpenseController::class, 'index'])->name('barang.index');
         Route::get('/barang/create', [ExpenseController::class, 'create'])->name('barang.create');
