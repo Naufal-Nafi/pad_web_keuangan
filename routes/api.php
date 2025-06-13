@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\API\ConsignmentApiController;
 use App\Http\Controllers\ConsignmentController;
-
+use App\Http\Controllers\UserController;
 
 // Public routes
 Route::post('/login', [AuthApiController::class, 'login']);
@@ -26,9 +26,9 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
 });
 
-// Public consignment routes
-Route::get('/consignments', [ConsignmentApiController::class, 'index']);
-Route::get('/consignments/{consignment_id}', [ConsignmentApiController::class, 'show']);
+// // Public consignment routes
+// Route::get('/consignments', [ConsignmentApiController::class, 'index']);
+// Route::get('/consignments/{consignment_id}', [ConsignmentApiController::class, 'show']);
 
 
 
@@ -67,4 +67,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
     });
 
+    Route::middleware('owner')->group(function () {
+        // route ke manajemen pegawai, search, dan CRUD pegawai
+        Route::prefix('pegawai')->group(function () {
+            Route::get('/', [UserController::class, 'index']);
+            Route::post('/', [UserController::class, 'store']);
+            Route::delete('/{user_id}', [UserController::class, 'destroy']);
+            Route::get('/edit/{user_id}', [UserController::class, 'edit']);
+            Route::post('/update/{user_id}', [UserController::class, 'update']);
+            Route::get('/search', [UserController::class, 'search']);
+        });
+    });
 });

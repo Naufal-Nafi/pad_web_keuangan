@@ -16,17 +16,26 @@ class UserController extends Controller
     {
         $perPage = $request->input('per_page', 10);
         $data_user = User::paginate($perPage);
-        return view('manajemen.pegawai', compact('data_user','perPage'));
+        return response()->json([
+            'data' => $data_user,
+            'pagination' => [
+                'current_page' => $data_user->currentPage(),
+                'last_page' => $data_user->lastPage(),
+                'per_page' => $data_user->perPage(),
+                'total' => $data_user->total(),
+            ]
+        ], 200);
+        // return view('manajemen.pegawai', compact('data_user','perPage'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
 // fungsi untuk menampilkan form untuk menambahkan akun user
-    public function create()
-    {
-        return view('manajemen.create');
-    }
+    // public function create()
+    // {
+    //     return view('manajemen.create');
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -65,7 +74,10 @@ class UserController extends Controller
     public function edit($user_id)
     {
         $user = User::find($user_id);
-        return view('manajemen.edit', compact('user'));
+        return response()->json([
+            'user' => $user,
+        ], 200);
+        // return view('manajemen.edit', compact('user'));
     }
 
     /**
@@ -115,10 +127,16 @@ class UserController extends Controller
 
         $jumlah_user = User::count();
 
-        return view('manajemen.pegawai', [
+        return response()->json([
             'data_user' => $data_user,
-            'cari' => $cari ?? null, 
-            'jumlah_user' => $jumlah_user,
-        ]);
+            'cari' => $cari ?? null,
+            'jumlah_user' => $jumlah_user
+        ], 200);
+
+        // return view('manajemen.pegawai', [
+        //     'data_user' => $data_user,
+        //     'cari' => $cari ?? null, 
+        //     'jumlah_user' => $jumlah_user,
+        // ]);
     }
 }

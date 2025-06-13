@@ -166,7 +166,7 @@
                 }
 
                 const data = await response.json();
-
+                console.log(data)
                 // Update counters
                 document.getElementById('profit').textContent = `Rp ${(data.totalIncome - data.totalExpense).toLocaleString('id-ID')}`;
                 document.getElementById('income').textContent = `Rp ${data.totalIncome.toLocaleString('id-ID')}`;
