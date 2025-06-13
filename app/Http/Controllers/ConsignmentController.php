@@ -25,18 +25,13 @@ class ConsignmentController extends Controller
             ->orderBy('exit_date', 'DESC')
             ->paginate($perPage);
 
-        // $consignments->transform(function ($consignment) {
         $consignments->getCollection()->transform(function ($consignment) {
-            // $status = $consignment->entry_date ? 'Close' : 'Open';
-            if ($consignment->stock - $consignment->sold == 0) {
-                $status = 'Close';
-            } else {
-                $status = 'Open';
-            }
+            $status = ($consignment->stock - $consignment->sold == 0) ? 'Close' : 'Open';
 
             $circulationDuration = $consignment->entry_date && $consignment->exit_date
                 ? Carbon::parse($consignment->exit_date)->diffInDays(Carbon::parse($consignment->entry_date))
                 : null;
+
             $totalPrice = $consignment->stock * $consignment->product->price;
 
             return [
@@ -54,20 +49,28 @@ class ConsignmentController extends Controller
             ];
         });
 
-        return view('transaksi.transaksi', compact('consignments'));
+        return response()->json([
+            'data' => $consignments->items(),
+            'pagination' => [
+                'current_page' => $consignments->currentPage(),
+                'last_page' => $consignments->lastPage(),
+                'per_page' => $consignments->perPage(),
+                'total' => $consignments->total(),
+            ]
+        ]);
     }
 
     //fungsi untuk menampilkan halaman edit consignment berdasarkan ID
     public function laporanEdit($consignment_id)
     {
-        $consignment = Consignment::find($consignment_id);
-        return view('transaksi.edit', compact('consignment'));
+        $consignment = Consignment::with(['store', 'product'])->findOrFail($consignment_id);
+        return response()->json($consignment);
     }
 
     //fungsi untuk menampilkan halaman tambah consignment
     public function laporanCreate()
     {
-        return view('transaksi.tambah');
+        // return view('transaksi.tambah');
     }
 
     //fungsi untuk menyimpan data consignment baru ke dalam database

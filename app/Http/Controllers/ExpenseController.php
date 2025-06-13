@@ -16,7 +16,16 @@ class ExpenseController extends Controller
         $data_keluar = Expense::with('user')
             ->orderBy('date', 'desc')
             ->paginate($perPage);
-        return view('barang.barang', compact('data_keluar', 'perPage'));
+            
+        return response()->json([
+            'data' => $data_keluar->items(),
+            'pagination' => [
+                'current_page' => $data_keluar->currentPage(),
+                'last_page' => $data_keluar->lastPage(),
+                'per_page' => $data_keluar->perPage(),
+                'total' => $data_keluar->total(),
+            ]
+        ]);
     }
 
     // fungsi untuk menampilkan form untuk membuat pengeluaran

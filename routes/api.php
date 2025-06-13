@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\API\ConsignmentApiController;
 use App\Http\Controllers\ConsignmentController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ExpenseController;
 
 
 // Public routes
@@ -27,8 +29,8 @@ Route::prefix('dashboard')->group(function () {
 });
 
 // Public consignment routes
-Route::get('/consignments', [ConsignmentApiController::class, 'index']);
-Route::get('/consignments/{consignment_id}', [ConsignmentApiController::class, 'show']);
+// Route::get('/consignments', [ConsignmentApiController::class, 'index']);
+// Route::get('/consignments/{consignment_id}', [ConsignmentApiController::class, 'show']);
 
 
 
@@ -41,17 +43,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout',[AuthApiController::class, 'logout']);
 
     // CONSIGNMENT routes
-    Route::prefix('consignments')->group(function () {
-        Route::get('/', [ConsignmentApiController::class, 'laporanIndex']);
+    Route::prefix('consignment')->group(function () {
+        Route::get('/', [ConsignmentController::class, 'laporanIndex']);
         Route::post('/', [ConsignmentApiController::class, 'store']);
+        Route::get('/edit/{consignment_id}', [ConsignmentController::class, 'laporanEdit']);
         Route::get('/{consignment_id}', [ConsignmentApiController::class, 'show']);
-        Route::put('/{consignment_id}', [ConsignmentApiController::class, 'update']);
-        Route::delete('/{consignment_id}', [ConsignmentApiController::class, 'destroy']);
+        Route::put('/update/{consignment_id}', [ConsignmentApiController::class, 'update']);
+        Route::delete('/delete/{consignment_id}', [ConsignmentApiController::class, 'destroy']);
     });
 
     // DASHBOARD ROUTES    
     Route::prefix('dashboard')->group(function () {
-        // TODO ini belum dibuat pada controller !!!
+        
         Route::get('/', [ConsignmentController::class, 'mainpageIndex']);
         Route::get('/search', [ConsignmentApiController::class, 'mainpageSearch']);
 
@@ -65,6 +68,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/weekly-report', [KeuanganController::class, 'getWeeklyReport']);
         Route::get('/monthly-report', [KeuanganController::class, 'getMonthlyReport']);
         Route::get('/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
+    });
+
+    Route::prefix('pegawai')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+    });
+
+    Route::prefix('expense')->group(function () {
+        Route::get('/',[ExpenseController::class, 'index']);
     });
 
 });
