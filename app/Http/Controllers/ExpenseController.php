@@ -80,7 +80,7 @@ class ExpenseController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Consignment created successfully',
+            'message' => 'Expense created successfully',
         ]);
     }
 
@@ -93,7 +93,7 @@ class ExpenseController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Consignment deleted successfully'
+            'message' => 'Expense deleted successfully'
         ], 200);
     }
 

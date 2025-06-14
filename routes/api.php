@@ -14,20 +14,6 @@ use App\Http\Controllers\ExpenseController;
 Route::post('/login', [AuthApiController::class, 'login']);
 Route::post('/register', [AuthApiController::class, 'register']);
 
-// Dashboard routes
-Route::prefix('dashboard')->group(function () {
-    Route::get('/income-percentage/7', [KeuanganController::class, 'getIncomePercentageLast7Days']);
-    Route::get('/income-percentage/14', [KeuanganController::class, 'getIncomePercentageLast14Days']);
-    Route::get('/income-percentage/30', [KeuanganController::class, 'getIncomePercentageLast30Days']);
-    Route::get('/income-percentage/365', [KeuanganController::class, 'getIncomePercentageLast12Months']);
-
-    Route::get('/daily-report', [KeuanganController::class, 'getDailyReport']);
-    Route::get('/fortnightly-report', [KeuanganController::class, 'getFortnightlyReport']);
-    Route::get('/weekly-report', [KeuanganController::class, 'getWeeklyReport']);
-    Route::get('/monthly-report', [KeuanganController::class, 'getMonthlyReport']);
-    Route::get('/store-income-percentage', [KeuanganController::class, 'storeIncomes']);
-});
-
 // Public consignment routes
 // Route::get('/consignments', [ConsignmentApiController::class, 'index']);
 // Route::get('/consignments/{consignment_id}', [ConsignmentApiController::class, 'show']);
@@ -84,9 +70,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('pegawai')->group(function () {
             Route::get('/', [UserController::class, 'index']);
             Route::post('/', [UserController::class, 'store']);
-            Route::delete('/{user_id}', [UserController::class, 'destroy']);
+            Route::delete('/delete/{user_id}', [UserController::class, 'destroy']);
             Route::get('/edit/{user_id}', [UserController::class, 'edit']);
-            Route::post('/update/{user_id}', [UserController::class, 'update']);
+            Route::put('/update/{user_id}', [UserController::class, 'update']);
             Route::get('/search', [UserController::class, 'search']);
         });
     });

@@ -74,9 +74,7 @@ class UserController extends Controller
     public function edit($user_id)
     {
         $user = User::find($user_id);
-        return response()->json([
-            'user' => $user,
-        ], 200);
+        return response()->json($user);
         // return view('manajemen.edit', compact('user'));
     }
 
@@ -102,7 +100,10 @@ class UserController extends Controller
             
             $user->save();
 
-        return redirect('/pegawai');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated successfully',
+        ]);
     }
 
     /**
@@ -113,7 +114,10 @@ class UserController extends Controller
     {
         $user = User::find($user_id);
         $user->delete();
-        return redirect('/pegawai');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully'
+        ], 200);
     }
 
 // fungsi untuk mencari akun user berdasarkan nama
