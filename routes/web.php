@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
 //     Route::post('/transaksi', [ConsignmentController::class, 'laporanStore'])->name('laporan.store');
     // Route::post('/transaksi/update/{consignment_id}', [ConsignmentController::class, 'laporanUpdate'])->name('laporan.update');
     // Route::get('/transaksi/edit/{consignment_id}', [ConsignmentController::class, 'laporanEdit'])->name('laporan.edit');
-    Route::delete('/transaksi/{consignment_id}', [ConsignmentController::class, 'laporanDestroy'])->name('laporan.destroy');
+    // Route::delete('/transaksi/{consignment_id}', [ConsignmentController::class, 'laporanDestroy'])->name('laporan.destroy');
     Route::get('/transaksi/print/{consignment_id}', [ConsignmentController::class, 'printReceipt'])->name('laporan.print');
     //route yang hanya bisa diakses oleh owner
     Route::middleware('owner')->group(function () {

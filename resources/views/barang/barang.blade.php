@@ -188,7 +188,7 @@
                     link.href = '#';
                     link.textContent = i;
                     link.className = 'px-2 py-1 mx-1 ' + (i === data.pagination.current_page ? 'font-bold' : '');
-                    link.addEventListener('click', () => fetchConsignments(i));
+                    link.addEventListener('click', () => fetchExpenses(i));
                     pagination.appendChild(link);
                 }
             }
