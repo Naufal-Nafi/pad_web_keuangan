@@ -31,7 +31,7 @@ class ExpenseController extends Controller
     // fungsi untuk menampilkan form untuk membuat pengeluaran
     public function create()
     {
-        return view('barang.create');
+        // return view('barang.create');
     }
 
     // fungsi untuk menyimpan data pengeluaran ke database
@@ -49,14 +49,17 @@ class ExpenseController extends Controller
             'date' => $request->date,
         ]);
 
-        return redirect('/barang')->with('success', 'Expense created successfully');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Consignment created successfully',
+        ]);
     }
 
     // fungsi untuk menampilkan form untuk mengedit data pengeluaran berdasarkan id
     public function edit($expense_id)
     {
         $expense = Expense::findOrFail($expense_id);
-        return view('barang.edit', compact('expense'));
+        return response()->json($expense);
     }
 
     // fungsi untuk memperbarui data pengeluaran berdasarkan id di database
@@ -75,7 +78,10 @@ class ExpenseController extends Controller
             'date' => $request->date,
         ]);
 
-        return redirect('/barang');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Consignment created successfully',
+        ]);
     }
 
 
@@ -85,7 +91,10 @@ class ExpenseController extends Controller
         $expense = Expense::findOrFail($expense_id);
         $expense->delete();
 
-        return redirect('/barang');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Consignment deleted successfully'
+        ], 200);
     }
 
     // fungsi untuk menampilkan tampilan form untuk menetapkan rentang tanggal data pengeluaran 

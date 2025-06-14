@@ -165,14 +165,14 @@
                     throw new Error('Failed to fetch data');
                 }
 
-                const data = await response.json();
+                const data = await response.json();                
 
-                console.log(data);
-
+                const totalIncome = Number(data.totalIncome);
+                const totalExpense = Number(data.totalExpense);
                 // Update counters
                 document.getElementById('profit').textContent = `Rp ${(data.totalIncome - data.totalExpense).toLocaleString('id-ID')}`;
-                document.getElementById('income').textContent = `Rp ${data.totalIncome.toLocaleString('id-ID')}`;
-                document.getElementById('expense').textContent = `Rp ${data.totalExpense.toLocaleString('id-ID')}`;
+                document.getElementById('income').textContent = `Rp ${totalIncome.toLocaleString('id-ID')}`;
+                document.getElementById('expense').textContent = `Rp ${totalExpense.toLocaleString('id-ID')}`;
 
                 // Update table
                 const tableBody = document.getElementById('consignmentsTable');

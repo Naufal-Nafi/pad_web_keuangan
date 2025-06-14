@@ -233,7 +233,7 @@
         document.addEventListener('DOMContentLoaded', () => {                    
             window.deleteConsignment = async function(id) {
                 const token = localStorage.getItem('auth_token');
-                console.log(id)
+                
                 try {
                     const res = await fetch(`/api/consignment/delete/${id}`, {
                         method: 'DELETE',

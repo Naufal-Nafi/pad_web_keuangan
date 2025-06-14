@@ -10,7 +10,7 @@
                 <h1 class="text-center font-bold leading-tight tracking-tight text-black md:text-2xl">
                     Input Transaksi
                 </h1>
-                               
+
                 <form id="consignmentStore" class="space-y-4 md:space-y-6 px-10">
                     @csrf
 
@@ -76,33 +76,33 @@
                             placeholder="Price" required="">
 
                         <!-- <input type="text" id="formatted-price"
-                                                    class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                                    placeholder="Price" required>
+                                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                                        placeholder="Price" required>
 
-                                                <input type="hidden" name="price" id="price">
+                                                    <input type="hidden" name="price" id="price">
 
-                                                <script>
-                                                    document.addEventListener("DOMContentLoaded", function () {
-                                                        const formattedInput = document.getElementById("formatted-price");
-                                                        const hiddenInput = document.getElementById("price");
+                                                    <script>
+                                                        document.addEventListener("DOMContentLoaded", function () {
+                                                            const formattedInput = document.getElementById("formatted-price");
+                                                            const hiddenInput = document.getElementById("price");
 
-                                                        formattedInput.addEventListener("input", function () {
-                                                            let rawValue = this.value.replace(/\D/g, ""); // Hanya ambil angka, hapus karakter lain
-                                                            if (rawValue !== "") {
-                                                                this.value = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan (dengan titik)
-                                                                hiddenInput.value = rawValue; // Simpan nilai asli tanpa format
-                                                            } else {
-                                                                hiddenInput.value = "";
-                                                            }
+                                                            formattedInput.addEventListener("input", function () {
+                                                                let rawValue = this.value.replace(/\D/g, ""); // Hanya ambil angka, hapus karakter lain
+                                                                if (rawValue !== "") {
+                                                                    this.value = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan (dengan titik)
+                                                                    hiddenInput.value = rawValue; // Simpan nilai asli tanpa format
+                                                                } else {
+                                                                    hiddenInput.value = "";
+                                                                }
+                                                            });
+
+                                                            formattedInput.addEventListener("blur", function () {
+                                                                if (this.value !== "") {
+                                                                    this.value = this.value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                                                                }
+                                                            });
                                                         });
-
-                                                        formattedInput.addEventListener("blur", function () {
-                                                            if (this.value !== "") {
-                                                                this.value = this.value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                                                            }
-                                                        });
-                                                    });
-                                                </script> -->
+                                                    </script> -->
 
                     </div>
 
@@ -135,10 +135,25 @@
             e.preventDefault();
 
             const token = localStorage.getItem('auth_token');
+
+            const storeName = document.getElementById('store_name').value.trim();
+            const productName = document.getElementById('product_name').value.trim();
+
+            // Validasi maksimal 255 karakter
+            if (storeName.length > 255) {
+                alert('Store name tidak boleh lebih dari 255 karakter.');
+                return;
+            }
+
+            if (productName.length > 255) {
+                alert('Product name tidak boleh lebih dari 255 karakter.');
+                return;
+            }
+
             try {
                 const response = await axios.post('/api/consignment', {
-                    store_name: document.getElementById('store_name').value,
-                    product_name: document.getElementById('product_name').value,
+                    store_name: storeName,
+                    product_name: productName,
                     exit_date: document.getElementById('exit_date').value,
                     price: parseFloat(document.getElementById('price').value),
                     stock: parseInt(document.getElementById('stock').value)

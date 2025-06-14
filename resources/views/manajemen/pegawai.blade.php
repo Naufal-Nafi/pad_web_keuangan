@@ -109,10 +109,19 @@
         </div>
     </div>
 
+
     <script>
         async function fetchUser(page = 1) {
+            //cek role akses
+            const userP = JSON.parse(localStorage.getItem('user') || '{}')
+            console.log(userP.role)
+            if (userP.role == 'employee') {                
+                window.location.href = '/dashboard';
+            }
+
+
             const token = localStorage.getItem('auth_token');
-            console.log(token);
+                        
             const response = await fetch(`/api/pegawai?page=${page}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -126,10 +135,10 @@
                     window.location.href = '/';
                 }
                 throw new Error('Failed to fetch data');
-            }
+            }            
 
             const result = await response.json();
-            console.log(result);
+            
             const user = result.data.data;
             const links = result.data.links;
             const tbody = document.getElementById('user-body');
@@ -194,8 +203,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => fetchUser());
-        console.log('asbdiufhiasuhdf')
+        document.addEventListener('DOMContentLoaded', () => fetchUser());        
     </script>
 
 @endsection

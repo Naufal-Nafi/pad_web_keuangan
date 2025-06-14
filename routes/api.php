@@ -73,6 +73,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('expense')->group(function () {
         Route::get('/',[ExpenseController::class, 'index']);
+        Route::post('/', [ExpenseController::class, 'store'])->name('barang.store');
+        Route::get('/edit/{expense_id}', [ExpenseController::class, 'edit']);
+        Route::put('/update/{expense_id}', [ExpenseController::class, 'update']);
+        Route::delete('/delete/{expense_id}', [ExpenseController::class, 'destroy']);
     });
 
     Route::middleware('owner')->group(function () {
