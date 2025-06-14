@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{consignment_id}', [ConsignmentApiController::class, 'show']);
         Route::put('/update/{consignment_id}', [ConsignmentApiController::class, 'update']);
         Route::delete('/delete/{consignment_id}', [ConsignmentApiController::class, 'destroy']);
+        Route::get('/print/{consignment_id}', [ConsignmentController::class, 'printReceipt']);
     });
 
     // DASHBOARD ROUTES    
@@ -77,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/edit/{expense_id}', [ExpenseController::class, 'edit']);
         Route::put('/update/{expense_id}', [ExpenseController::class, 'update']);
         Route::delete('/delete/{expense_id}', [ExpenseController::class, 'destroy']);
+        Route::post('/pdf', [ExpenseController::class, 'download']);
     });
 
     Route::middleware('owner')->group(function () {
