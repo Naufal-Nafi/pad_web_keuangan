@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
     // Route::post('/transaksi/update/{consignment_id}', [ConsignmentController::class, 'laporanUpdate'])->name('laporan.update');
     // Route::get('/transaksi/edit/{consignment_id}', [ConsignmentController::class, 'laporanEdit'])->name('laporan.edit');
     // Route::delete('/transaksi/{consignment_id}', [ConsignmentController::class, 'laporanDestroy'])->name('laporan.destroy');
-    Route::get('/transaksi/print/{consignment_id}', [ConsignmentController::class, 'printReceipt'])->name('laporan.print');
+    // Route::get('/transaksi/print/{consignment_id}', [ConsignmentController::class, 'printReceipt'])->name('laporan.print');
     //route yang hanya bisa diakses oleh owner
     Route::middleware('owner')->group(function () {
         //route ke manajemen pegawai, search, dan CRUD pegawai
@@ -86,7 +86,7 @@ Route::middleware('auth')->group(function () {
         // Route::post('/barang/update/{expense_id}', [ExpenseController::class, 'update'])->name('barang.update');
 //route unduh data barang
         // Route::get('/barang/unduh', [ExpenseController::class, 'pageunduh'])->name('barang.unduh');
-        Route::post('/barang/pdf', [ExpenseController::class, 'download'])->name('downloadPdf');
+        // Route::post('/barang/pdf', [ExpenseController::class, 'download'])->name('downloadPdf');
         //route ke data mingguan dan data chart
         Route::get('/mingguan', [KeuanganController::class, 'mingguanIndex'])->name('mingguan.index');
         Route::get('/mingguan/weekly-report', [KeuanganController::class, 'getWeeklyReport']);

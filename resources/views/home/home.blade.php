@@ -84,7 +84,7 @@
                 @endforeach
             </div>
 
-            <div id="storeIncomeSection" class="block gap-2 my-12 min-h-[350px]">
+            <div id="storeIncomeSection" class="block gap-2 my-12 min-h-[350px] hidden">
                 <h6 class="ms-4 mb-4 font-bold">Pie chart Per Toko</h6>
                 <div class="flex gap-4 flex-wrap">
                     <div>
@@ -145,7 +145,9 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div id="pagination" class="p-4"></div>
+                    <div class="p-4 flex justify-end">
+                        <div id="pagination"></div>
+                    </div>
                 </div>
 
                 <!-- Div Pengeluaran -->
@@ -164,7 +166,9 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div id="paginationExpense" class="p-4"></div>
+                    <div class="p-4 flex justify-end">
+                        <div id="paginationExpense"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -198,7 +202,7 @@
                 }
 
                 const data = await response.json();
-                console.log(data)
+
                 const totalIncome = Number(data.totalIncome);
                 const totalExpense = Number(data.totalExpense);
                 // Update counters
@@ -214,11 +218,11 @@
                     const row = document.createElement('tr');
                     row.className = 'bg-white border-b hover:bg-gray-50';
                     row.innerHTML = `
-                                                    <td class="px-6 py-4">${item.store_name}</td>
-                                                    <td class="px-6 py-4">${item.product_name}</td>
-                                                    <td class="px-6 py-4">Rp. ${income}</td>
-                                                    <td class="px-6 py-4">${item.exit_date}</td>
-                                                `;
+                                                                <td class="px-6 py-4">${item.store_name}</td>
+                                                                <td class="px-6 py-4">${item.product_name}</td>
+                                                                <td class="px-6 py-4">Rp. ${income}</td>
+                                                                <td class="px-6 py-4">${item.exit_date}</td>
+                                                            `;
                     tableBody.appendChild(row);
                 });
 
@@ -233,29 +237,43 @@
                 if (currentPage > 1) {
                     const prevLink = document.createElement('a');
                     prevLink.href = '#';
-                    prevLink.textContent = 'Prev';
-                    prevLink.className = 'px-2 py-1 mx-1 text-blue-500';
-                    prevLink.addEventListener('click', () => fetchDashboardData(currentPage - 1));
+                    prevLink.textContent = '< Prev';
+                    prevLink.className = 'px-2 py-1 mx-1 text-[#161D6F] hover:text-blue-500 duration-300';
+                    prevLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        fetchDashboardData(currentPage - 1);
+                    });
                     pagination.appendChild(prevLink);
                 }
 
-                // Nomor halaman
+                // Dropdown untuk memilih halaman
+                const select = document.createElement('select');
+                select.className = 'px-3 py-1 mx-1 border border-gray-300 rounded';
+
                 for (let i = 1; i <= lastPage; i++) {
-                    const link = document.createElement('a');
-                    link.href = '#';
-                    link.textContent = i;
-                    link.className = 'px-2 py-1 mx-1 ' + (i === currentPage ? 'font-bold text-white bg-blue-600 rounded' : 'text-blue-500');
-                    link.addEventListener('click', () => fetchDashboardData(i));
-                    pagination.appendChild(link);
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}`;
+                    if (i === currentPage) option.selected = true;
+                    select.appendChild(option);
                 }
+
+                select.addEventListener('change', (e) => {
+                    fetchDashboardData(parseInt(e.target.value));
+                });
+
+                pagination.appendChild(select);
 
                 // Tombol Next
                 if (currentPage < lastPage) {
                     const nextLink = document.createElement('a');
                     nextLink.href = '#';
-                    nextLink.textContent = 'Next';
-                    nextLink.className = 'px-2 py-1 mx-1 text-blue-500';
-                    nextLink.addEventListener('click', () => fetchDashboardData(currentPage + 1));
+                    nextLink.textContent = 'Next >';
+                    nextLink.className = 'px-2 py-1 mx-1 text-[#161D6F] hover:text-blue-500 duration-300';
+                    nextLink.addEventListener('click', (e) => {
+                        e.preventDefault(); // cegah perilaku default
+                        fetchDashboardData(currentPage + 1);
+                    });
                     pagination.appendChild(nextLink);
                 }
 
@@ -287,7 +305,7 @@
                 }
 
                 const dataExpense = await response.json();
-
+                
                 // Update table expenses
                 const tableBodyExpense = document.getElementById('expensesTable');
                 tableBodyExpense.innerHTML = '';
@@ -296,25 +314,61 @@
                     const row = document.createElement('tr');
                     row.className = 'bg-white border-b hover:bg-gray-50';
                     row.innerHTML = `
-                                                    <td class="px-6 py-4">${item.date}</td>
-                                                    <td class="px-6 py-4">Rp. ${amount}</td>
-                                                    <td class="px-6 py-4">${item.description}</td>                            
-                                                `;
+                                                                <td class="px-6 py-4">${item.date}</td>
+                                                                <td class="px-6 py-4">Rp. ${amount}</td>
+                                                                <td class="px-6 py-4">${item.description}</td>                            
+                                                            `;
                     tableBodyExpense.appendChild(row);
                 });
 
                 // Update pagination expense
                 const paginationExpense = document.getElementById('paginationExpense');
                 paginationExpense.innerHTML = '';
-                if (dataExpense.pagination.last_page > 1) {
-                    for (let i = 1; i <= dataExpense.pagination.last_page; i++) {
-                        const link = document.createElement('a');
-                        link.href = '#';
-                        link.textContent = i;
-                        link.className = 'px-2 py-1 mx-1 ' + (i === dataExpense.pagination.current_page ? 'font-bold' : '');
-                        link.addEventListener('click', () => fetchExpensesData(i));
-                        paginationExpense.appendChild(link);
-                    }
+                const currentPage = dataExpense.pagination.current_page;
+                const lastPage = dataExpense.pagination.last_page;
+
+                // Tombol Prev
+                if (currentPage > 1) {
+                    const prevLink = document.createElement('a');
+                    prevLink.href = '#';
+                    prevLink.textContent = '< Prev';
+                    prevLink.className = 'px-2 py-1 mx-1 text-[#161D6F] hover:text-blue-500 duration-300';
+                    prevLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        fetchExpensesData(currentPage - 1);
+                    });
+                    paginationExpense.appendChild(prevLink);
+                }
+
+                // Dropdown untuk memilih halaman
+                const select = document.createElement('select');
+                select.className = 'px-3 py-1 mx-1 border border-gray-300 rounded';
+
+                for (let i = 1; i <= lastPage; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}`;
+                    if (i === currentPage) option.selected = true;
+                    select.appendChild(option);
+                }
+
+                select.addEventListener('change', (e) => {
+                    fetchExpensesData(parseInt(e.target.value));
+                });
+
+                paginationExpense.appendChild(select);
+
+                // Tombol Next
+                if (currentPage < lastPage) {
+                    const nextLink = document.createElement('a');
+                    nextLink.href = '#';
+                    nextLink.textContent = 'Next >';
+                    nextLink.className = 'px-2 py-1 mx-1 text-[#161D6F] hover:text-blue-500 duration-300';
+                    nextLink.addEventListener('click', (e) => {
+                        e.preventDefault(); // cegah perilaku default
+                        fetchExpensesData(currentPage + 1);
+                    });
+                    paginationExpense.appendChild(nextLink);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -472,6 +526,7 @@
                 btnStore.classList.add('bg-[#161D6F]', 'text-white');
                 btnGross.classList.remove('bg-[#161D6F]', 'text-white');
                 btnGross.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-[#161D6F]', 'hover:text-white', 'duration-300');
+                renderStoreIncomeChart();
             });
         });
     </script>
@@ -512,15 +567,15 @@
                 const table = document.createElement('table');
                 table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
                 table.innerHTML = `
-                                                <thead class="bg-gray-100">
-                                                    <tr>
-                                                        <th class="px-4 py-2 font-medium">Produk</th>
-                                                        <th class="px-4 py-2 font-medium">Income</th>
-                                                        <th class="px-4 py-2 font-medium">Persentase</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            `;
+                                                            <thead class="bg-gray-100">
+                                                                <tr>
+                                                                    <th class="px-4 py-2 font-medium">Produk</th>
+                                                                    <th class="px-4 py-2 font-medium">Income</th>
+                                                                    <th class="px-4 py-2 font-medium">Persentase</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        `;
 
                 const tbody = table.querySelector('tbody');
                 chunk.forEach((item, i) => {
@@ -528,13 +583,13 @@
                     const color = colors[colorIndex] || '#ccc';
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                                                    <td class="px-4 py-2 text-gray-800">
-                                                        <span style="display:inline-block;width:15px;height:15px;background:${color};border-radius:3px;"></span>
-                                                        ${item.label}
-                                                    </td>
-                                                    <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
-                                                    <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                `;
+                                                                <td class="px-4 py-2 text-gray-800">
+                                                                    <span style="display:inline-block;width:15px;height:15px;background:${color};border-radius:3px;"></span>
+                                                                    ${item.label}
+                                                                </td>
+                                                                <td class="px-4 py-2 text-gray-800">Rp ${(item.income || 0).toLocaleString()}</td>
+                                                                <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                                            `;
                     tbody.appendChild(row);
                 });
                 container.appendChild(table);
@@ -671,27 +726,27 @@
                     const table = document.createElement('table');
                     table.className = "min-w-[250px] table-auto divide-y divide-gray-200 border rounded-lg text-sm text-left bg-white shadow";
                     table.innerHTML = `
-                                                    <thead class="bg-gray-100">
-                                                        <tr>
-                                                            <th class="px-4 py-2 font-medium">Store Name</th>
-                                                            <th class="px-4 py-2 font-medium">Total Income</th>
-                                                            <th class="px-4 py-2 font-medium">Percentage</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                `;
+                                                                <thead class="bg-gray-100">
+                                                                    <tr>
+                                                                        <th class="px-4 py-2 font-medium">Store Name</th>
+                                                                        <th class="px-4 py-2 font-medium">Total Income</th>
+                                                                        <th class="px-4 py-2 font-medium">Percentage</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody></tbody>
+                                                            `;
                     const tbody = table.querySelector('tbody');
                     chunk.forEach((item, i) => {
                         const colorIndex = chunkIndex * 5 + i;
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                                                        <td class="px-4 py-2 text-gray-800">
-                                                            <span style="display:inline-block;width:15px;height:15px;background:${colors[colorIndex]};border-radius:3px;margin-right:4px;"></span>
-                                                            ${item.store_name}
-                                                        </td>
-                                                        <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
-                                                        <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
-                                                    `;
+                                                                    <td class="px-4 py-2 text-gray-800">
+                                                                        <span style="display:inline-block;width:15px;height:15px;background:${colors[colorIndex]};border-radius:3px;margin-right:4px;"></span>
+                                                                        ${item.store_name}
+                                                                    </td>
+                                                                    <td class="px-4 py-2 text-gray-800">Rp ${item.total_income.toLocaleString()}</td>
+                                                                    <td class="px-4 py-2 text-gray-800">${item.percentage}%</td>
+                                                                `;
                         tbody.appendChild(row);
                     });
                     container.appendChild(table);
@@ -699,11 +754,7 @@
             } catch (error) {
                 console.error('Error loading store income chart:', error);
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderStoreIncomeChart();
-        });
+        }        
     </script>
 
 @endsection
