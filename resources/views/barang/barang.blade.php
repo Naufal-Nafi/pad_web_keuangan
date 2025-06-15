@@ -20,7 +20,7 @@
                 <p class="text-blue-600 group-hover:underline px-2" style="font-weight:bold; font-size:13px">Tambah</p>
             </a>
             <!-- button unduh informasi barang -->
-            <a href="/barang/unduh">
+            <a href="{{ route('barang.unduh') }}">
                 <button type="button"
                     class="text-white bg-[#0090F0] hover:bg-blue-800 duration-300 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center inline-flex items-center me-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 me-2" viewBox="0 0 24 24">

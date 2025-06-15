@@ -28,34 +28,34 @@
                 <thead class="text-xs text-white uppercase bg-[#324150]">
                     <tr>
                         <th scope="col" class="px-3 py-3">
-                            Store
+                            Toko
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Product
+                            Produk
                         </th>
                         <th scope="col" class="px-3 py-3">
                             Status
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Sell Time
+                            Waktu Jual (hari)
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Entry Date
+                            Tanggal Masuk
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Exit Date
+                            Tanggal Keluar
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Price
+                            Harga
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Stock
+                            Stok
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Sold
+                            Terjual
                         </th>
                         <th scope="col" class="px-3 py-3">
-                            Total Price
+                            Total Harga
                         </th>
                         <th scope="col" class="px-3 py-3">
                         </th>
@@ -185,8 +185,8 @@
                                                                     Hapus
                                                                 </span>
                                                             </div>
-
-                                                            <a href="/laporan/${item.consignment_id}/print"
+                                                            
+                                                            <a href="#" onclick="printConsignment(${item.consignment_id}); return false;"
                                                                 class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
                                                                 <!-- SVG Icon Print -->
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -229,6 +229,8 @@
         // Load saat pertama kali
         document.addEventListener('DOMContentLoaded', () => fetchConsignments());
     </script>
+
+    {{-- Delete Consignment --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => {                    
             window.deleteConsignment = async function(id) {
@@ -262,6 +264,33 @@
         });
     </script>
 
+    {{-- print functionlity --}}
+    <script>
+        async function printConsignment(id) {
+            const token = localStorage.getItem('auth_token');
+            try {
+                const response = await fetch(`/api/consignment/print/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/pdf'
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to fetch PDF');
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nota-${id}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('Gagal mencetak: ' + err.message);
+            }
+        }
+    </script>
 
 
 @endsection
