@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth.login');
 });
+Route::get('forgot-password', function () {
+    return view('auth.email');
+})->name('password.request');
+Route::get('reset-password/{token}', function () {
+    return view('auth.reset');
+})->name('password.reset');
 
 Route::get('/dashboard', function () {
     return view('home.home');

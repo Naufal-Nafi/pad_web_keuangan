@@ -54,7 +54,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:5',
+            'password' => 'required|min:8',
         ]);
 
         $user = new User();
@@ -95,7 +95,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'nullable|min:5',
+            'password' => 'nullable|min:8',
         ]);
 
         $user = User::find($user_id);
