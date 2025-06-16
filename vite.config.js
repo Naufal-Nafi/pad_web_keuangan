@@ -9,6 +9,8 @@ export default defineConfig({
         }),
     ],
     build: {
+        manifest: true,
+        emptyOutDir: true,
         sourcemap: true, // Enable source maps for easier debugging
         outDir: 'public/build', // Specify the output directory for built files
     }

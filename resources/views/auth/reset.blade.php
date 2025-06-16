@@ -84,6 +84,7 @@
 
             if (response.ok) {
                 messageDiv.innerHTML = `<div class="alert alert-success p-2 mb-2 text-green-900 bg-green-300 rounded-lg">${data.message || 'Password berhasil diubah.'}</div>`;
+                window.location.href = '/';
             } else {
                 let errorMsg = data.errors
                     ? Object.values(data.errors).flat().join('<br>')
