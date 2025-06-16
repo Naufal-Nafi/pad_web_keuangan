@@ -18,7 +18,7 @@
                 <h1 class="text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                     Password Baru
                 </h1>
-                {{-- @if ($errors->any())
+                @if ($errors->any())
                 <div class="alert alert-danger p-2 mb-2 text-red-900 bg-red-300 rounded-lg">
                     <ul class="list-disc list-inside">
                         @foreach ($errors->all() as $error)
@@ -26,12 +26,11 @@
                         @endforeach
                     </ul>
                 </div>
-                @endif --}}
-                <div id="api-message"></div>
-                <form id="resetPasswordForm" class="space-y-4 md:space-y-6">
+                @endif
+                <form class="space-y-4 md:space-y-6" method="POST" action="{{ route('password.store') }}">
                     @csrf
-                    <input type="hidden" name="token" id="token" value="{{ request()->token }}">
-                    <input type="hidden" name="email" id="email" value="{{ request()->email }}">
+                    <input type="hidden" name="token" value="{{ request()->token }}">
+                    <input type="hidden" name="email" value="{{ $email }}">
                     <div>
                         <input type="password" name="password" id="password"
                             class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
@@ -51,49 +50,5 @@
     </div>
     </div>
 </body>
-
-<script>
-    document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const token = document.getElementById('token').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const password_confirmation = document.getElementById('password_confirmation').value;
-        const messageDiv = document.getElementById('api-message');
-        messageDiv.innerHTML = '';
-        console.log(email, token, password, password_confirmation);
-
-        try {
-            const response = await fetch('/api/login/reset-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    token,
-                    email,
-                    password,
-                    password_confirmation
-                })
-            });
-
-            const data = await response.json();
-            console.log(data);
-
-            if (response.ok) {
-                messageDiv.innerHTML = `<div class="alert alert-success p-2 mb-2 text-green-900 bg-green-300 rounded-lg">${data.message || 'Password berhasil diubah.'}</div>`;
-            } else {
-                let errorMsg = data.errors
-                    ? Object.values(data.errors).flat().join('<br>')
-                    : (data.message || 'Terjadi kesalahan');
-                messageDiv.innerHTML = `<div class="alert alert-danger p-2 mb-2 text-red-900 bg-red-300 rounded-lg">${errorMsg}</div>`;
-            }
-        } catch (err) {
-            messageDiv.innerHTML = err; //`<div class="alert alert-danger p-2 mb-2 text-red-900 bg-red-300 rounded-lg">Gagal mengirim permintaan. Coba lagi.</div>`;
-        }
-    });
-</script>
 
 @endsection

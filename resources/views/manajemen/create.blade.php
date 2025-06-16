@@ -107,8 +107,8 @@
             const password_confirmation = document.getElementById('password_confirmation').value;
 
             // Validasi panjang password minimal 5 karakter
-            if (password.length < 8) {
-                alert('Password harus memiliki minimal 8 karakter');
+            if (password.length < 5) {
+                alert('Password harus memiliki minimal 5 karakter');
                 return;
             }
 

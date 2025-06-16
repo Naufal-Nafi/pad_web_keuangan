@@ -6,7 +6,7 @@
         class="relative overflow-x-auto shadow-md sm:rounded-lg mx-28 my-10">
         <div class="flex items-center justify-between" style="background:#EEF0F4">
             <!-- tambah pegawai -->
-            <a href="{{ route('pegawai.create') }}" class="flex items-center group">
+            <a class="flex items-center group">
                 <button title="Add New" class="cursor-pointer outline-none group-hover:rotate-90 duration-300 ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"
                         class="stroke-blue-600 fill-none group-active:stroke-blue-600 group-active:duration-0 duration-300">

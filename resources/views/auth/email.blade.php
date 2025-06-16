@@ -18,7 +18,7 @@
                 <h1 class="text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                     Masukkan Email
                 </h1>
-                {{-- @if (session('status'))
+                @if (session('status'))
                 <div class="alert alert-success p-2 mb-2 text-green-900 bg-green-300 rounded-lg">
                     {{ session('status') }}
                 </div>
@@ -32,9 +32,9 @@
                         @endforeach
                     </ul>
                 </div>
-                @endif --}}
-                <div id="api-message"></div>
-                <form id="forgotPasswordForm" class="space-y-4 md:space-y-6">
+                @endif
+
+                <form class="space-y-4 md:space-y-6" method="POST" action="{{ route('password.email') }}">
                     @csrf
                     <input type="hidden" name="token">
                     <div>
@@ -50,37 +50,5 @@
         </div>
     </div>
 </section>
-
-<script>
-    document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const messageDiv = document.getElementById('api-message');
-        messageDiv.innerHTML = '';
-
-        try {
-            const response = await fetch('/api/login/forgot-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ email })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                messageDiv.innerHTML = `<div class="alert alert-success p-2 mb-2 text-green-900 bg-green-300 rounded-lg">${data.message}</div>`;
-            } else {
-                let errorMsg = data.errors && data.errors.email ? data.errors.email[0] : 'Terjadi kesalahan';
-                messageDiv.innerHTML = `<div class="alert alert-danger p-2 mb-2 text-red-900 bg-red-300 rounded-lg">${errorMsg}</div>`;
-            }
-        } catch (err) {
-            messageDiv.innerHTML = `<div class="alert alert-danger p-2 mb-2 text-red-900 bg-red-300 rounded-lg">Gagal mengirim permintaan. Coba lagi.</div>`;
-        }
-    });
-</script>
 
 @endsection

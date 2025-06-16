@@ -5,25 +5,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\API\ConsignmentApiController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\ConsignmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExpenseController;
 
 
 // Public routes
-// Route::post('/login', [AuthApiController::class, 'login']);
-// Route::post('/register', [AuthApiController::class, 'register']);
-
-Route::middleware('guest')->group(function () {
-    Route::prefix('login')->group(function () {
-        Route::post('/', [AuthApiController::class, 'login']);
-        Route::post('/register', [AuthApiController::class, 'register']);
-        Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
-        Route::post('reset-password', [NewPasswordController::class, 'store']);
-    });
-});
+Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/register', [AuthApiController::class, 'register']);
 
 // Public consignment routes
 // Route::get('/consignments', [ConsignmentApiController::class, 'index']);
