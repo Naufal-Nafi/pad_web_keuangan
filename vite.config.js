@@ -10,6 +10,6 @@ export default defineConfig({
     ],
     build: {
         sourcemap: true, // Enable source maps for easier debugging
-        outDir: 'dist', // Specify the output directory for built files
+        outDir: 'public/build', // Specify the output directory for built files
     }
 });
