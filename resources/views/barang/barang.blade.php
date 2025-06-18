@@ -92,7 +92,7 @@
         let currentPageGlobal = 1;
 
         async function fetchExpenses(page = 1, perPage = 10) {
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
 
             const response = await fetch(`/api/expense?page=${page}&per_page=${perPage}`, {
                 headers: {
@@ -103,7 +103,7 @@
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    localStorage.removeItem('auth_token');
+                    sessionStorage.removeItem('auth_token');
                     window.location.href = '/';
                 }
                 throw new Error('Failed to fetch data');
@@ -245,7 +245,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             window.deleteExpense = async function (id) {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
 
                 try {
                     const response = await fetch(`/api/expense/delete/${id}`, {

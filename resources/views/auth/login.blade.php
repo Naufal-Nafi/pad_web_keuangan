@@ -87,9 +87,9 @@
                     return;
                 }
 
-                // Simpan token dan user di localStorage
-                localStorage.setItem('auth_token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
+                // Simpan token dan user di sessionStorage
+                sessionStorage.setItem('auth_token', data.token);
+                sessionStorage.setItem('user', JSON.stringify(data.user));
                 window.location.href = '/dashboard';
             } catch (error) {
                 console.error('Login error:', error);

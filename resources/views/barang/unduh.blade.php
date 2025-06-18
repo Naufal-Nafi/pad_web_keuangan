@@ -50,14 +50,14 @@
     </section>
 
     <script>
-        if (!localStorage.getItem('auth_token')) {
+        if (!sessionStorage.getItem('auth_token')) {
             window.location.href = '/';
         }
             
         document.getElementById('downloadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
             
             const start_date = document.getElementById('start_date').value;
             const end_date = document.getElementById('end_date').value;
@@ -68,8 +68,7 @@
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/pdf',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'Content-Type': 'application/json',                        
                     },
                     body: JSON.stringify({ start_date, end_date })
                 });

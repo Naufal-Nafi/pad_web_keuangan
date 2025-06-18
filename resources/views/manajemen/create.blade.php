@@ -89,11 +89,11 @@
         </div>
     </section>
     <script>
-        if (!localStorage.getItem('auth_token')) {
+        if (!sessionStorage.getItem('auth_token')) {
             window.location.href = '/';
         }
 
-        const userP = JSON.parse(localStorage.getItem('user') || '{}')
+        const userP = JSON.parse(sessionStorage.getItem('user') || '{}')
         if (userP.role == 'employee') {
             window.location.href = '/dashboard';
         }
@@ -117,7 +117,7 @@
                 return;
             }
 
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
 
             try {
                 const response = await axios.post('/api/pegawai', {
@@ -127,8 +127,7 @@
                 }, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json',                        
                         'Authorization': `Bearer ${token}`
                     }
                 });

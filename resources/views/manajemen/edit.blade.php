@@ -71,7 +71,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const url = window.location.href;
             const id = url.split('/').pop();
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
 
             try {
                 const response = await fetch(`/api/pegawai/edit/${id}`, {
@@ -98,7 +98,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.querySelector('form');
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
             const url = window.location.href;
             const id = url.split('/').pop(); // ambil consignment_id dari URL
 

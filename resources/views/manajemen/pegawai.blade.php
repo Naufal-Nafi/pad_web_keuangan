@@ -96,14 +96,14 @@
 
         async function fetchUser(page = 1, perPage = 10, search = '') {
             //cek role akses
-            const userP = JSON.parse(localStorage.getItem('user') || '{}')
+            const userP = JSON.parse(sessionStorage.getItem('user') || '{}')
 
             if (userP.role == 'employee') {
                 window.location.href = '/dashboard';
             }
 
 
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
             const url = new URL(`/api/pegawai`, window.location.origin);
 
             url.searchParams.append('page', page);
@@ -120,7 +120,7 @@
             });
             if (!response.ok) {
                 if (response.status === 401) {
-                    localStorage.removeItem('auth_token');
+                    sessionStorage.removeItem('auth_token');
                     window.location.href = '/';
                 }
                 throw new Error('Failed to fetch data');
@@ -262,7 +262,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             window.deleteUser = async function (id) {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
 
                 try {
                     const response = await fetch(`/api/pegawai/delete/${id}`, {

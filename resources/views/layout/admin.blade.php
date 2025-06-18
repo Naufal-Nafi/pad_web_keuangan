@@ -15,7 +15,7 @@
 
 <!-- navbar -->
 <nav class="bg-gradient-to-r sticky top-0 z-10 from-[#161D6F] to-[#4854EB] max-w-screen flex flex-row flex-wrap items-center justify-between p-4"
-    x-data="{ user: JSON.parse(localStorage.getItem('user') || '{}') }">
+    x-data="{ user: JSON.parse(sessionStorage.getItem('user') || '{}') }">
     <div class="flex">
         <a href="/dashboard" class="flex items-center space-x-3 rtl:space-x-reverse mr-auto">
             <img src="{{ asset('src/Logo.png') }}" class="h-10" />
@@ -121,7 +121,7 @@
     <script>
         async function logout() {
             try {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
                 if (!token) {
                     window.location.href = '/';
                     return;
@@ -136,8 +136,8 @@
                 });
 
                 if (response.ok) {
-                    localStorage.removeItem('auth_token');
-                    localStorage.removeItem('user');
+                    sessionStorage.removeItem('auth_token');
+                    sessionStorage.removeItem('user');
                     window.location.href = '/';
                 } else {
                     console.error('Logout failed');

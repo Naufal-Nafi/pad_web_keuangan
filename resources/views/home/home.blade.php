@@ -184,7 +184,7 @@
 
         async function fetchDashboardData(page = 1) {
             try {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
 
                 const response = await fetch(`/api/dashboard?page=${page}`, {
                     headers: {
@@ -195,7 +195,7 @@
 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        localStorage.removeItem('auth_token');
+                        sessionStorage.removeItem('auth_token');
                         window.location.href = '/';
                     }
                     throw new Error('Failed to fetch data');
@@ -287,7 +287,7 @@
         // fetch expense
         async function fetchExpensesData(page = 1) {
             try {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
 
                 const response = await fetch(`/api/expense?page=${page}`, {
                     headers: {
@@ -298,7 +298,7 @@
 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        localStorage.removeItem('auth_token');
+                        sessionStorage.removeItem('auth_token');
                         window.location.href = '/';
                     }
                     throw new Error('Failed to fetch data');
@@ -377,7 +377,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
             if (!token) {
                 window.location.href = '/';
                 return;
@@ -424,7 +424,7 @@
 
         async function renderLineChart(frame) {
             try {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
                 const response = await fetch(frame.url, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -598,7 +598,7 @@
 
         async function renderChart(frame) {
             try {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
                 const response = await fetch(`/api/dashboard/income-percentage/${frame.days}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -678,7 +678,7 @@
     <script>
         async function renderStoreIncomeChart() {
             try {
-                const token = localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
                 const response = await fetch('/api/dashboard/store-income-percentage', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
