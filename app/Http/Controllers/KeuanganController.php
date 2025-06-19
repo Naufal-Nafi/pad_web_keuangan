@@ -269,7 +269,7 @@ class KeuanganController extends Controller
     public function getIncomePercentageByDays(Carbon $days)
     {
         $consignments = Consignment::with('product')
-            ->whereDate('entry_date', '>=', $days)
+            ->whereNotNull('entry_date')
             ->get();
 
 
@@ -320,10 +320,15 @@ class KeuanganController extends Controller
 
     public function storeIncomes()
     {
-        // Ambil total income per store (dari sold * product->price)
-        $stores = Store::with(['consignments.product'])->get();
+        // Ambil store dengan consignment yang memiliki entry_date (dan product-nya juga)
+        $stores = Store::with([
+            'consignments' => function ($query) {
+                $query->whereNotNull('entry_date');
+            },
+            'consignments.product'
+        ])->get();
 
-        // Hitung income tiap store dan bentuk ulang data
+        // Hitung income tiap store
         $stores = $stores->map(function ($store) {
             $totalIncome = $store->consignments->sum(function ($consignment) {
                 return $consignment->sold * ($consignment->product->price ?? 0);
@@ -334,12 +339,17 @@ class KeuanganController extends Controller
                 'store_name' => $store->store_name,
                 'total_income' => $totalIncome,
             ];
-        });
+        })
+            // Filter hanya store yang memiliki income (artinya punya consignment dengan entry_date)
+            ->filter(function ($store) {
+                return $store['total_income'] > 0;
+            })
+            ->values(); // Reset index
 
-        // Hitung total income dari semua toko
+        // Hitung total income semua store
         $totalIncome = $stores->sum('total_income');
 
-        // Format hasil dengan persentase
+        // Format dengan persentase
         $result = $stores
             ->map(function ($store) use ($totalIncome) {
                 $income = $store['total_income'];

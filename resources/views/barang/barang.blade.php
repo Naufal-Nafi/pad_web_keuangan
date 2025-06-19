@@ -19,6 +19,22 @@
                 </button>
                 <p class="text-blue-600 group-hover:underline px-2" style="font-weight:bold; font-size:13px">Tambah</p>
             </a>
+            <!-- search barang -->
+            <div class="relative ">
+                <label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
+                <div class="relative py-3 ">
+                    <div class="absolute  inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="search"
+                        class="mr-3 block w-72 h-5 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50"
+                        placeholder="Cari deskripsi..." />
+                </div>
+                <div id="result" class="mt-4 text-sm text-gray-700"></div>
+            </div>
             <!-- button unduh informasi barang -->
             <a href="{{ route('barang.unduh') }}">
                 <button type="button"
@@ -91,10 +107,17 @@
         let currentPerPage = 10; // default
         let currentPageGlobal = 1;
 
-        async function fetchExpenses(page = 1, perPage = 10) {
+        async function fetchExpenses(page = 1, perPage = 10, search = '') {
             const token = sessionStorage.getItem('auth_token');
+            const url = new URL(`/api/expense`, window.location.origin);
 
-            const response = await fetch(`/api/expense?page=${page}&per_page=${perPage}`, {
+            url.searchParams.append('page', page);
+            url.searchParams.append('per_page', perPage);
+            if (search) {
+                url.searchParams.append('search', search); // contoh: ?search=naufal
+            }
+
+            const response = await fetch(url.toString(), {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
@@ -133,48 +156,48 @@
 
 
             tbody.innerHTML = expenses.map(item => `
-                        <tr class="bg-white border-b">
-                            <th scope="row" class="px-3 py-1 font-medium text-gray-900 whitespace-nowrap">
-                                ${formatDate(item.date)}
-                            </th>
-                            <td class="px-3 py-1">
-                                ${formatCurrency(item.amount)}
-                            </td>
-                            <td class="px-3 py-1">
-                                ${item.description}
-                            </td>
-                            <td class="flex items-center px-3 justify-end">
-                                <a href="/barang/edit/${item.expense_id}"
-                                    class="border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                        <path fill="#B6BE1A" fill-rule="evenodd"
-                                            d="M17.204 10.796L19 9c.545-.545.818-.818.964-1.112a2 2 0 0 0 0-1.776C19.818 5.818 19.545 5.545 19 5s-.818-.818-1.112-.964a2 2 0 0 0-1.776 0c-.294.146-.567.419-1.112.964l-1.819 1.819a10.9 10.9 0 0 0 4.023 3.977m-5.477-2.523l-6.87 6.87c-.426.426-.638.638-.778.9c-.14.26-.199.555-.316 1.145l-.616 3.077c-.066.332-.1.498-.005.593s.26.061.593-.005l3.077-.616c.59-.117.885-.176 1.146-.316s.473-.352.898-.777l6.89-6.89a12.9 12.9 0 0 1-4.02-3.98"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#B6BE1A] text-white text-xs rounded py-1 px-2 shadow-md">
-                                        Edit
-                                    </span>
-                                </a>
-                                <div class="relative group">
-                                    <button @click="showModalExpense = true; deleteId = ${item.expense_id}"
-                                        class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                            <g fill="none">
-                                                <path fill="#C50505" fill-rule="evenodd"
-                                                    d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
+                                <tr class="bg-white border-b">
+                                    <th scope="row" class="px-3 py-1 font-medium text-gray-900 whitespace-nowrap">
+                                        ${formatDate(item.date)}
+                                    </th>
+                                    <td class="px-3 py-1">
+                                        ${formatCurrency(item.amount)}
+                                    </td>
+                                    <td class="px-3 py-1">
+                                        ${item.description}
+                                    </td>
+                                    <td class="flex items-center px-3 justify-end">
+                                        <a href="/barang/edit/${item.expense_id}"
+                                            class="border-2 border-[#A3A3A3] rounded p-1 hover:bg-green-100 my-3 relative group">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path fill="#B6BE1A" fill-rule="evenodd"
+                                                    d="M17.204 10.796L19 9c.545-.545.818-.818.964-1.112a2 2 0 0 0 0-1.776C19.818 5.818 19.545 5.545 19 5s-.818-.818-1.112-.964a2 2 0 0 0-1.776 0c-.294.146-.567.419-1.112.964l-1.819 1.819a10.9 10.9 0 0 0 4.023 3.977m-5.477-2.523l-6.87 6.87c-.426.426-.638.638-.778.9c-.14.26-.199.555-.316 1.145l-.616 3.077c-.066.332-.1.498-.005.593s.26.061.593-.005l3.077-.616c.59-.117.885-.176 1.146-.316s.473-.352.898-.777l6.89-6.89a12.9 12.9 0 0 1-4.02-3.98"
                                                     clip-rule="evenodd" />
-                                                <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
-                                                    d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
-                                            </g>
-                                        </svg>
-                                    </button>
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
-                                        Hapus
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join('');
+                                            </svg>
+                                            <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#B6BE1A] text-white text-xs rounded py-1 px-2 shadow-md">
+                                                Edit
+                                            </span>
+                                        </a>
+                                        <div class="relative group">
+                                            <button @click="showModalExpense = true; deleteId = ${item.expense_id}"
+                                                class="bg-white border-2 border-[#A3A3A3] rounded p-1 hover:bg-red-100 mx-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                    <g fill="none">
+                                                        <path fill="#C50505" fill-rule="evenodd"
+                                                            d="M21 6H3v3a2 2 0 0 1 2 2v4c0 2.828 0 4.243.879 5.121C6.757 21 8.172 21 11 21h2c2.829 0 4.243 0 5.121-.879c.88-.878.88-2.293.88-5.121v-4a2 2 0 0 1 2-2zm-10.5 5a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0zm5 0a1 1 0 0 0-2 0v5a1 1 0 1 0 2 0z"
+                                                            clip-rule="evenodd" />
+                                                        <path stroke="#C50505" stroke-linecap="round" stroke-width="2"
+                                                            d="M10.068 3.37c.114-.106.365-.2.715-.267A6.7 6.7 0 0 1 12 3c.44 0 .868.036 1.217.103s.6.161.715.268" />
+                                                    </g>
+                                                </svg>
+                                            </button>
+                                            <span class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-red-800 text-white text-xs rounded py-1 px-2 shadow-md">
+                                                Hapus
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('');
 
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
@@ -234,6 +257,22 @@
             currentPage = 1; // reset ke halaman pertama saat jumlah berubah
             fetchExpenses(currentPage, currentPerPage);
         });
+
+        // search
+        function debounce(func, delay) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        const debouncedSearch = debounce((e) => {
+            const keyword = e.target.value;
+            fetchExpenses(1, currentPerPage, keyword);
+        }, 500); // tunggu 500ms
+
+        document.getElementById('search').addEventListener('input', debouncedSearch);
 
         // Load saat pertama kali
         document.addEventListener('DOMContentLoaded', () => {

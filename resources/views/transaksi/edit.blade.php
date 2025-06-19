@@ -61,8 +61,8 @@
                                 clip-rule="evenodd" />
                         </svg>
                         <input type="date" name="entry_date" id="entry_date"
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                            placeholder="Entry Date" required="">
+                            class="cursor-help pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            title="Masukkan tanggal masuk">
                     </div>
 
                     <div class="relative bg-transparent">
@@ -78,8 +78,8 @@
                                 clip-rule="evenodd" />
                         </svg>
                         <input type="date" name="exit_date" id="exit_date"
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                            placeholder="Exit Date">
+                            class="cursor-help pl-10 bg-gray-50 border border-gray-300 text-gray-900 drop-shadow-lg rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            title="Masukkan tanggal keluar">
                     </div>
 
                     <div class="relative bg-transparent">
@@ -115,10 +115,20 @@
                             placeholder="Stock" required="">
                     </div>
 
-                    <button type="submit"
-                        class="bg-[#4C7DE7] hover:bg-blue-800 duration-300 ml-28 drop-shadow-lg text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5">
-                        Simpan
-                    </button>
+                    <div class="flex justify-end space-x-4 mt-4 ml-28">
+                        <a href="/transaksi"
+                            class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-5 rounded-lg drop-shadow-lg transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Kembali
+                        </a>
+                        <button type="submit"
+                            class="bg-[#4C7DE7] hover:bg-blue-800 duration-300 text-white font-medium rounded-lg text-sm px-5 py-2.5 drop-shadow-lg focus:ring-4 focus:outline-none focus:ring-primary-300">
+                            Simpan
+                        </button>
+                    </div>
                 </form>
 
             </div>

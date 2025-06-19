@@ -13,10 +13,17 @@ class ExpenseController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
+        $search = $request->input('search');
+
         $data_keluar = Expense::with('user')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('description', 'like', '%' . $search . '%');                        
+                });
+            })
             ->orderBy('date', 'desc')
             ->paginate($perPage);
-            
+
         return response()->json([
             'data' => $data_keluar->items(),
             'pagination' => [
@@ -27,6 +34,7 @@ class ExpenseController extends Controller
             ]
         ]);
     }
+
 
     // fungsi untuk menampilkan form untuk membuat pengeluaran
     public function create()

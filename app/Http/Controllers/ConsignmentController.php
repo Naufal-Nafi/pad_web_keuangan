@@ -19,14 +19,28 @@ class ConsignmentController extends Controller
     public function laporanIndex(Request $request)
     {
         $perPage = $request->input('per_page', 10);
+        $search = $request->input('search');
 
-        $consignments = Consignment::with('product', 'store')
+        $query = Consignment::with(['product', 'store'])
             ->orderByRaw("(entry_date IS NULL) DESC")
-            ->orderBy('exit_date', 'DESC')
-            ->paginate($perPage);
+            ->orderBy('exit_date', 'DESC');
+
+        // Filter search jika ada
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('store', function ($q2) use ($search) {
+                    $q2->where('store_name', 'like', '%' . $search . '%');
+                })
+                    ->orWhereHas('product', function ($q2) use ($search) {
+                        $q2->where('product_name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $consignments = $query->paginate($perPage);
 
         $consignments->getCollection()->transform(function ($consignment) {
-            $status = ($consignment->stock - $consignment->sold == 0) ? 'Close' : 'Open';
+            $status = ($consignment->entry_date) ? 'Close' : 'Open';
 
             $circulationDuration = $consignment->entry_date && $consignment->exit_date
                 ? Carbon::parse($consignment->exit_date)->diffInDays(Carbon::parse($consignment->entry_date))
@@ -158,6 +172,8 @@ class ConsignmentController extends Controller
     public function mainpageIndex()
     {
         $consignments = Consignment::with('product', 'store')
+            ->orderBy('exit_date', 'DESC')
+            ->whereNotNull('entry_date')
             ->paginate(10);
 
         $transformedConsignments = $consignments->getCollection()->transform(function ($consignment) {

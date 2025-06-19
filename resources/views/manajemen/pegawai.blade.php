@@ -30,7 +30,7 @@
                     </div>
                     <input type="text" id="search"
                         class="mr-3 block w-72 h-5 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50"
-                        placeholder="Search..." />
+                        placeholder="Cari nama atau email..." />
                 </div>
                 <div id="result" class="mt-4 text-sm text-gray-700"></div>
             </div>
